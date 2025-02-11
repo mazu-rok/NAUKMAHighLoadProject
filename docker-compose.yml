@@ -1,0 +1,57 @@
+services:
+  high-load-server:
+    build:
+      context: serverSide
+    image: high-load-server
+    container_name: high-load-server
+    depends_on:
+      - mongodb
+    env_file:
+      - ./serverSide/java.env
+    environment:
+      SERVER_PORT: 8080
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGO_DB: highLoadDb
+    tty: true
+
+    ports:
+      - "8080:8080"
+      - "5007:5005"
+    stdin_open: true
+    networks:
+      server-network:
+        ipv4_address: 10.0.15.99
+
+  mongodb:
+    build:
+      context: mongo-db/docker
+    image: mongodb
+    container_name: mongodb
+    tty: true
+    ports:
+      - "27077:27017"
+    stdin_open: true
+    volumes:
+      - ./mongo-db/mongodb_data:/data/db
+    networks:
+      server-network:
+
+#  high-load-web:
+#    build:
+#      context: web
+#    image: high-load-server
+#    container_name: high-load-server
+#    tty: true
+#    stdin_open: true
+#    ports:
+#      - "3000:3000"
+#    networks:
+#      server-network:
+
+networks:
+  server-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.15.0/24
