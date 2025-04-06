@@ -1,0 +1,15 @@
+FROM maven:3.9.9-amazoncorretto-23 AS builder
+
+WORKDIR /workspace
+VOLUME ~/.m2:/root/.m2
+
+COPY ./ /workspace
+
+RUN mvn install -DskipTests
+
+FROM openjdk:23 AS final
+LABEL Description="Orders service for High Load Project"
+
+COPY --from=builder /workspace/target/orders-0.0.1-SNAPSHOT.jar /workspace/orders.jar
+WORKDIR /workspace
+CMD java $JAVA_OPTS -jar ./orders.jar

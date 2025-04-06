@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: orders
+
+springdoc:
+  swagger-ui:
+    path: /orders/swagger/ui
+  api-docs:
+    path: /orders/swagger/api-docs
+
+spring.data.mongodb:
+  host: ${MONGODB_HOST:localhost}
+  port: ${MONGODB_PORT:27017}
+  database: ${MONGO_DB:highLoadDb}

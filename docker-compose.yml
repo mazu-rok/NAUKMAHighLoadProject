@@ -1,5 +1,5 @@
 services:
-  high-load-server:
+  user-service:
     build:
       context: serverSide
     image: high-load-server
@@ -7,7 +7,7 @@ services:
     depends_on:
       - mongodb
     env_file:
-      - ./serverSide/java.env
+      - ./userService/java.env
     environment:
       SERVER_PORT: 8080
       MONGODB_HOST: mongodb
@@ -24,18 +24,32 @@ services:
         ipv4_address: 10.0.15.99
 
   mongodb:
-    build:
-      context: mongo-db/docker
-    image: mongodb
+    image: mongo:8.0.4
     container_name: mongodb
     tty: true
     ports:
       - "27077:27017"
     stdin_open: true
+    entrypoint: mongod --bind_ip_all
     volumes:
       - ./mongo-db/mongodb_data:/data/db
     networks:
       server-network:
+
+  postgres:
+    image: postgres:17.4
+    container_name: postgres
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_PASSWORD: example
 
 #  high-load-web:
 #    build:
