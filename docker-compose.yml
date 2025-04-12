@@ -65,7 +65,8 @@ services:
     # set shared memory limit when using docker-compose
     shm_size: 128mb
     # or set shared memory limit when deploy via swarm stack
-    #volumes:
+    volumes:
+      - ./postgres-db/init.sql:/docker-entrypoint-initdb.d/init.sql
     #  - type: tmpfs
     #    target: /dev/shm
     #    tmpfs:
