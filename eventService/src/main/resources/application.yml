@@ -1,14 +1,20 @@
 spring:
   application:
     name: events
+  datasource:
+    url: ${POSTGRES_DATASOURCE_URL}
+    username: ${POSTGRES_USERNAME:postgres}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 springdoc:
   swagger-ui:
     path: /events/swagger/ui
   api-docs:
     path: /events/swagger/api-docs
-
-spring.data.mongodb:
-  host: ${MONGODB_HOST:localhost}
-  port: ${MONGODB_PORT:27017}
-  database: ${MONGO_DB:highLoadDb}

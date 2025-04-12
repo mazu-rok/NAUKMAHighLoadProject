@@ -1,9 +1,9 @@
 services:
   user-service:
     build:
-      context: serverSide
+      context: userService
     image: high-load-server
-    container_name: high-load-server
+    container_name: user-server
     depends_on:
       - mongodb
     env_file:
@@ -22,6 +22,28 @@ services:
     networks:
       server-network:
         ipv4_address: 10.0.15.99
+
+  event-service:
+    build:
+      context: eventService
+    image: high-load-server
+    container_name: event-server
+    depends_on:
+      - postgres
+    env_file:
+      - ./eventService/java.env
+    environment:
+      SERVER_PORT: 8080
+      POSTGRES_DATASOURCE_URL: jdbc:postgresql://10.0.15.98:5432/events
+      POSTGRES_PASSWORD: example
+    tty: true
+
+    ports:
+      - "8081:8080"
+    stdin_open: true
+    networks:
+      server-network:
+        ipv4_address: 10.0.15.100
 
   mongodb:
     image: mongo:8.0.4
@@ -49,7 +71,11 @@ services:
     #    tmpfs:
     #      size: 134217728 # 128*2^20 bytes = 128Mb
     environment:
+      POSTGRES_DB: events
       POSTGRES_PASSWORD: example
+    networks:
+      server-network:
+        ipv4_address: 10.0.15.98
 
 #  high-load-web:
 #    build:
