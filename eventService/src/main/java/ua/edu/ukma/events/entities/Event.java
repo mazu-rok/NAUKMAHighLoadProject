@@ -1,8 +1,15 @@
 package ua.edu.ukma.events.entities;
 
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
+
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,6 +44,7 @@ public class Event {
         this.locationAddress = locationAddress;
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = OffsetDateTime.now();
+        this.imagesMetadata = List.of();
     }
 
     public Event(UUID authorId, String title, String description, EventStatus status, OffsetDateTime startTime, OffsetDateTime endTime, String locationAddress) {
@@ -51,6 +59,7 @@ public class Event {
         this.locationAddress = locationAddress;
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = OffsetDateTime.now();
+        this.imagesMetadata = List.of();
     }
 
     @Id
@@ -84,6 +93,11 @@ public class Event {
 
     @Column(name = "updated_at", insertable = false, nullable = false)
     private OffsetDateTime updatedAt;
+
+    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "images_metadata", columnDefinition = "jsonb")
+    private List<Map<String, String>> imagesMetadata;
 
     public enum EventStatus {
         DRAFT,

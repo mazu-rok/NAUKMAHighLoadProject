@@ -1,6 +1,8 @@
 package ua.edu.ukma.events.dto.responses;
 
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import lombok.Data;
@@ -19,6 +21,7 @@ public class EventResponse {
     private String locationAddress;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
+    private List<Map<String, String>> imagesMetadata;
 
     public EventResponse(Event event) {
         this.eventId = event.getEventId();
@@ -31,5 +34,6 @@ public class EventResponse {
         this.locationAddress = event.getLocationAddress();
         this.createdAt = event.getCreatedAt();
         this.updatedAt = event.getUpdatedAt();
+        this.imagesMetadata = event.getImagesMetadata();
     }
 }

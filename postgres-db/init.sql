@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS events (
     end_time TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    location_address VARCHAR(200)
+    location_address VARCHAR(200),
+    images_metadata JSONB NOT NULL DEFAULT '[]'
 );
 
 -- Trigger to keep updated_at current
