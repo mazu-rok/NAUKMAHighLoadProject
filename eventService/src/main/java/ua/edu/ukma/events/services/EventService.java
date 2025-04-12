@@ -4,11 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import ua.edu.ukma.events.dto.requests.EventRequest;
 import ua.edu.ukma.events.dto.responses.EventResponse;
 import ua.edu.ukma.events.entities.Event;
+import ua.edu.ukma.events.entities.Event.EventStatus;
 import ua.edu.ukma.events.repositories.EventRepository;
 
 @Service
@@ -48,8 +56,13 @@ public class EventService {
         return new EventResponse(eventRepository.save(convertDtoToEvent(eventRequest)));
     }
 
-    public List<EventResponse> listAll() {
-        return eventRepository.findAll().stream().map(e -> new EventResponse(e)).toList();
+    public Page<EventResponse> listAll(Integer page, Integer size, String sortBy, String direction, Optional<EventStatus> statusFilter) {
+        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        if (statusFilter.isPresent()) {
+            return eventRepository.findByStatus(statusFilter.get(), pageable).map(e -> new EventResponse(e));
+        }
+        return eventRepository.findAll(pageable).map(e -> new EventResponse(e));
     }
 
     public Optional<EventResponse> getById(UUID id) {
@@ -108,5 +121,11 @@ public class EventService {
         imagesMetadata.removeIf(map -> image_id.equals(UUID.fromString(map.get("image_id"))));
 
         return Optional.of(new EventResponse(eventRepository.save(event)));
+    }
+
+    @Scheduled(cron = "0 * * * * *") // Runs every minute
+    @Transactional
+    public void updateEventsStatuses() {
+        eventRepository.updateStatusForEndedEvents();
     }
 }

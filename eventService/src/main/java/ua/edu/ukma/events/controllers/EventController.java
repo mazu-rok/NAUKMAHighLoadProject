@@ -1,10 +1,11 @@
 package ua.edu.ukma.events.controllers;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,8 +28,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import ua.edu.ukma.events.dto.requests.EventRequest;
 import ua.edu.ukma.events.dto.responses.EventResponse;
+import ua.edu.ukma.events.entities.Event.EventStatus;
 import ua.edu.ukma.events.services.EventService;
 
 @RestController
@@ -70,14 +75,30 @@ public class EventController {
 
     @Operation(
       summary = "Get all events",
+      parameters = {
+        @Parameter(in = ParameterIn.QUERY, name = "page", required = true, description = "Pagination page"),
+        @Parameter(in = ParameterIn.QUERY, name = "size", required = true, description = "Number of elements on one page. Max is 50"),
+        @Parameter(in = ParameterIn.QUERY, name = "sortBy", required = true, description = "Field by which to sort"),
+        @Parameter(in = ParameterIn.QUERY, name = "direction", required = true, description = "desc/asc"),
+        @Parameter(in = ParameterIn.QUERY, name = "status", required = false, description = "Filter for event status. If not used, then returns events with all statuses"),
+      },
       responses = {
         @ApiResponse(responseCode = "200", description = "List of events",
                      content = @Content(array = @ArraySchema(schema = @Schema(implementation = EventResponse.class))))
       }
     )
     @GetMapping
-    public List<EventResponse> listEvents() {
-        return eventService.listAll();
+    public Page<EventResponse> listEvents(
+      @Min(value = 0, message = "Size must be >= 0")
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") 
+      @Min(value = 1, message = "Size must be >= 1")
+      @Max(value = 50, message = "Cannot request more than 50 events at a time")
+      int size,
+      @RequestParam(defaultValue = "createdAt") String sortBy,
+      @RequestParam(defaultValue = "desc") String direction,
+      @RequestParam(required = false) EventStatus status) {
+        return eventService.listAll(page, size, sortBy, direction, Optional.ofNullable(status));
     }
 
     @Operation(

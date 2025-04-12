@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS events (
     title VARCHAR(200) NOT NULL,
     description TEXT,
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT'
-        CHECK (status IN ('DRAFT', 'PUBLISHED', 'CANCELLED')),
+        CHECK (status IN ('DRAFT', 'SCHEDULED', 'ENDED')),
     start_time TIMESTAMPTZ,
     end_time TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

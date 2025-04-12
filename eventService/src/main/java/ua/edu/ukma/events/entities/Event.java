@@ -101,7 +101,7 @@ public class Event {
 
     public enum EventStatus {
         DRAFT,
-        PUBLISHED,
-        CANCELLED
+        SCHEDULED,
+        ENDED
     }
 }
