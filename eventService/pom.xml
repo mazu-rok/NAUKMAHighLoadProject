@@ -72,6 +72,12 @@
 			<artifactId>hypersistence-utils-hibernate-63</artifactId>
 			<version>3.9.9</version>
 		</dependency>
+
+		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>RELEASE</version>
+		</dependency>
 	</dependencies>
 
 	<build>

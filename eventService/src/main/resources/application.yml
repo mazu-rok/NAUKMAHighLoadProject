@@ -18,3 +18,10 @@ springdoc:
     path: /events/swagger/ui
   api-docs:
     path: /events/swagger/api-docs
+
+images-bucket-name: images-bucket
+
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}

@@ -1,14 +1,22 @@
 package ua.edu.ukma.events.controllers;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +41,26 @@ public class EventImageController {
     }
 
     @Operation(
+      summary = "Get event image by ID",
+      parameters = {
+        @Parameter(in = ParameterIn.PATH, name = "id", required = true, description = "UUID of the event"),
+        @Parameter(in = ParameterIn.PATH, name = "image_id", required = true, description = "UUID of the event image")
+      },
+      responses = {
+        @ApiResponse(responseCode = "200", description = "The image"),
+        @ApiResponse(responseCode = "404", description = "Event not found")
+      }
+    )
+    @GetMapping(value = "/{imageId}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] getImage(@PathVariable UUID id, @PathVariable UUID imageId) throws IOException {
+        Optional<InputStream> optionalImage = eventService.getImage(id, imageId);
+        if (optionalImage.isEmpty()) {
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Event or image not found");
+        }
+        return IOUtils.toByteArray(optionalImage.get());
+    }
+
+    @Operation(
       summary = "Saves image for event",
       description = "Saves image for the event",
       parameters = {
@@ -45,11 +73,12 @@ public class EventImageController {
         @ApiResponse(responseCode = "404", description = "Event not found")
       }
     )
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EventResponse uploadImage(
-        @PathVariable UUID id
+        @PathVariable UUID id,
+        @RequestParam(required = true) MultipartFile file
     ) throws IOException {
-        return eventService.addImage(id).orElseThrow(() ->
+        return eventService.addImage(id, file).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found")
         );
     }

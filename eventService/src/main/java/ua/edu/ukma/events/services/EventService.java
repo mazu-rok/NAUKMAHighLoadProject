@@ -1,16 +1,19 @@
 package ua.edu.ukma.events.services;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.transaction.Transactional;
 import ua.edu.ukma.events.dto.requests.EventRequest;
@@ -22,9 +25,14 @@ import ua.edu.ukma.events.repositories.EventRepository;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
+    private final StorageService storageService;
 
-    public EventService(EventRepository eventRepository) {
+    @Value("${images-bucket-name}")
+    private String imagesBucketName;
+
+    public EventService(EventRepository eventRepository, StorageService storageService) {
         this.eventRepository = eventRepository;
+        this.storageService = storageService;
     }
 
     private Event convertDtoToEvent(EventRequest eventRequest) {
@@ -50,6 +58,10 @@ public class EventService {
             eventRequest.getEndTime(),
             eventRequest.getLocationAddress()
             );
+    }
+
+    private String getImageStoragePath(UUID eventId, UUID imageId) {
+        return "events/" + eventId + "/" + imageId.toString();
     }
 
     public EventResponse create(EventRequest eventRequest) {
@@ -87,7 +99,28 @@ public class EventService {
         eventRepository.deleteById(id);
     }
 
-    public Optional<EventResponse> addImage(UUID eventId) {
+    public Optional<InputStream> getImage(UUID eventId, UUID imageId) {
+        Optional<Event> eventOptional = eventRepository.findById(eventId);
+
+        if (eventOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Event event = eventOptional.get();
+
+        List<Map<String, String>> imagesMetadata = event.getImagesMetadata();
+        for (Map<String, String> imageMetadata : imagesMetadata) {
+            if (UUID.fromString(imageMetadata.get("image_id")).equals(imageId)) {
+                String key = getImageStoragePath(eventId, imageId);
+                return Optional.of(storageService.downloadFile(imagesBucketName, key));
+            }
+
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<EventResponse> addImage(UUID eventId, MultipartFile file) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
 
         if (eventOptional.isEmpty()) {
@@ -97,18 +130,20 @@ public class EventService {
         Event event = eventOptional.get();
 
         UUID imageId = UUID.randomUUID();
-        String key = "events/" + eventId + "/" + imageId.toString();
+        String key = getImageStoragePath(eventId, imageId);
 
-        String url = String.format("https://test.com/%s", key);
+        String url = String.format("https://test.com/%s/%s", imagesBucketName, key);
 
         List<Map<String, String>> imagesMetadata = event.getImagesMetadata();
         imagesMetadata.add(Map.ofEntries(Map.entry("image_id", imageId.toString()), Map.entry("url", url)));
         event.setImagesMetadata(imagesMetadata);
 
+        storageService.uploadFile(imagesBucketName, key, file);
+
         return Optional.of(new EventResponse(eventRepository.save(event)));
     }
 
-    public Optional<EventResponse> removeImage(UUID eventId, UUID image_id) {
+    public Optional<EventResponse> removeImage(UUID eventId, UUID imageId) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
 
         if (eventOptional.isEmpty()) {
@@ -118,7 +153,15 @@ public class EventService {
         Event event = eventOptional.get();
 
         List<Map<String, String>> imagesMetadata = event.getImagesMetadata();
-        imagesMetadata.removeIf(map -> image_id.equals(UUID.fromString(map.get("image_id"))));
+        for (Map<String, String> imageMetadata : imagesMetadata) {
+            if (UUID.fromString(imageMetadata.get("image_id")).equals(imageId)) {
+                String key = getImageStoragePath(eventId, imageId);
+                storageService.deleteFile(imagesBucketName, key);
+            }
+
+        }
+
+        imagesMetadata.removeIf(map -> imageId.equals(UUID.fromString(map.get("image_id"))));
 
         return Optional.of(new EventResponse(eventRepository.save(event)));
     }
