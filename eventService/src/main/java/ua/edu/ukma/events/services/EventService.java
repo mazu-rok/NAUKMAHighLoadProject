@@ -1,6 +1,7 @@
 package ua.edu.ukma.events.services;
 
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,28 +37,35 @@ public class EventService {
     }
 
     private Event convertDtoToEvent(EventRequest eventRequest) {
-        return new Event(
-            eventRequest.getAuthorId(),
-            eventRequest.getTitle(),
-            eventRequest.getDescription(),
-            eventRequest.getStatus(),
-            eventRequest.getStartTime(),
-            eventRequest.getEndTime(),
-            eventRequest.getLocationAddress()
-            );
+        return Event.builder()
+        .eventId(UUID.randomUUID())
+        .authorId(eventRequest.getAuthorId())
+        .title(eventRequest.getTitle())
+        .description(eventRequest.getDescription())
+        .status(eventRequest.getStatus())
+        .startTime(eventRequest.getStartTime())
+        .endTime(eventRequest.getEndTime())
+        .locationAddress(eventRequest.getLocationAddress())
+        .createdAt(OffsetDateTime.now())
+        .updatedAt(OffsetDateTime.now())
+        .imagesMetadata(List.of())
+        .build();
     }
 
     private Event convertDtoToEvent(UUID eventId, EventRequest eventRequest) {
-        return new Event(
-            eventId,
-            eventRequest.getAuthorId(),
-            eventRequest.getTitle(),
-            eventRequest.getDescription(),
-            eventRequest.getStatus(),
-            eventRequest.getStartTime(),
-            eventRequest.getEndTime(),
-            eventRequest.getLocationAddress()
-            );
+        return Event.builder()
+        .eventId(eventId)
+        .authorId(eventRequest.getAuthorId())
+        .title(eventRequest.getTitle())
+        .description(eventRequest.getDescription())
+        .status(eventRequest.getStatus())
+        .startTime(eventRequest.getStartTime())
+        .endTime(eventRequest.getEndTime())
+        .locationAddress(eventRequest.getLocationAddress())
+        .createdAt(OffsetDateTime.now())
+        .updatedAt(OffsetDateTime.now())
+        .imagesMetadata(List.of())
+        .build();
     }
 
     private String getImageStoragePath(UUID eventId, UUID imageId) {
