@@ -31,7 +31,7 @@ import ua.edu.ukma.events.dto.responses.EventResponse;
 import ua.edu.ukma.events.services.EventService;
 
 @RestController
-@RequestMapping("api/v1/events/{eventId}/images")
+@RequestMapping("/api/v1/events/{eventId}/images")
 @Tag(name = "Events Images", description = "CRUD operations for events images")
 public class EventImageController {
 
