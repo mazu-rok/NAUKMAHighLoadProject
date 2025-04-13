@@ -36,7 +36,7 @@ import ua.edu.ukma.events.entities.Event.EventStatus;
 import ua.edu.ukma.events.services.EventService;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/v1/events")
 @Tag(name = "Events", description = "CRUD operations for events")
 public class EventController {
 
