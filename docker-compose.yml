@@ -1,9 +1,9 @@
 services:
   user-service:
     build:
-      context: serverSide
-    image: high-load-server
-    container_name: high-load-server
+      context: userService
+    image: user-server
+    container_name: user-server
     depends_on:
       - mongodb
     env_file:
@@ -22,6 +22,31 @@ services:
     networks:
       server-network:
         ipv4_address: 10.0.15.99
+
+  event-service:
+    build:
+      context: eventService
+    image: event-server
+    container_name: event-server
+    depends_on:
+      - postgres
+    env_file:
+      - ./eventService/java.env
+    environment:
+      SERVER_PORT: 8080
+      POSTGRES_DATASOURCE_URL: jdbc:postgresql://10.0.15.98:5432/high_load_db
+      POSTGRES_PASSWORD: example
+      MINIO_URL: http://10.0.15.97:9000
+      MINIO_ACCESS_KEY: example-access-key
+      MINIO_SECRET_KEY: example-secret-key
+    tty: true
+
+    ports:
+      - "8081:8080"
+    stdin_open: true
+    networks:
+      server-network:
+        ipv4_address: 10.0.15.100
 
   mongodb:
     image: mongo:8.0.4
@@ -49,7 +74,22 @@ services:
     #    tmpfs:
     #      size: 134217728 # 128*2^20 bytes = 128Mb
     environment:
+      POSTGRES_DB: high_load_db
       POSTGRES_PASSWORD: example
+    networks:
+      server-network:
+        ipv4_address: 10.0.15.98
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ACCESS_KEY: example-access-key
+      MINIO_SECRET_KEY: example-secret-key
+    command: server /data --console-address ":9001"
+    networks:
+      server-network:
+        ipv4_address: 10.0.15.97
 
 #  high-load-web:
 #    build:

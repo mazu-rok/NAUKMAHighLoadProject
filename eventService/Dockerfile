@@ -10,6 +10,6 @@ RUN mvn install -DskipTests
 FROM openjdk:23 AS final
 LABEL Description="Server for High Load Project"
 
-COPY --from=builder /workspace/target/tickets-0.0.1-SNAPSHOT.jar /workspace/server.jar
+COPY --from=builder /workspace/target/events-0.0.1-SNAPSHOT.jar /workspace/server.jar
 WORKDIR /workspace
 CMD java $JAVA_OPTS -jar ./server.jar
