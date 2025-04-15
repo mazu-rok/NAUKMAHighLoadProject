@@ -1,6 +1,26 @@
 spring:
   application:
     name: users
+  datasource:
+    url: ${POSTGRES_DATASOURCE_URL}
+    username: ${POSTGRES_USERNAME:postgres}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  flyway.enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+admin:
+  username: ${ADMIN_USERNAME:admin}
+  password: ${ADMIN_PASSWORD:admin_password}
+  email: ${ADMIN_EMAIL:admin@example.com}
+
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+    expiration-time: ${JWT_EXPIRATION_TIME:3600000} # 1 hour
+    refresh-expiration-time: ${JWT_REFRESH_EXPIRATION_TIME:86400000} # 1 day
 
 springdoc:
   swagger-ui:
