@@ -1,0 +1,8 @@
+eureka:
+  client.fetch-registry: false
+  register-with-eureka: false
+
+server:
+  port: ${SERVER_PORT:8761}
+
+spring.application.name: eureka-balancer
