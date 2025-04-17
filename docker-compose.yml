@@ -6,10 +6,20 @@ services:
     container_name: user-server
     depends_on:
       - mongodb
+      - postgres
     env_file:
       - ./userService/java.env
     environment:
       SERVER_PORT: 8080
+      POSTGRES_DATASOURCE_URL: jdbc:postgresql://postgres:5432/high_load_db
+      POSTGRES_PASSWORD: example
+      POSTGRES_USERNAME: postgres
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin_password
+      ADMIN_EMAIL: admin@example.com
+      JWT_SECRET_KEY: "LJQTjyGnd3oOiVAMssQgG62qDv6xgOdXbRPFKGzWqfU=" #base64
+      JWT_EXPIRATION_TIME: 3600000 # 1 hour
+      JWT_REFRESH_EXPIRATION_TIME: 86400000 # 1 day
       MONGODB_HOST: mongodb
       MONGODB_PORT: 27017
       MONGO_DB: highLoadDb
