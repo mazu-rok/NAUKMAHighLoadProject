@@ -1,4 +1,37 @@
 services:
+  api-gateway:
+    build:
+      context: api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway
+    container_name: api-gateway
+    environment:
+      EUREKA_URI: http://eureka:8761/eureka
+#      SSL_KEY_ALIAS: ${SSL_KEY_ALIAS}
+#      SSL_KEY_STORE_PASSWORD: ${SSL_KEY_STORE_PASSWORD}
+      SERVER_PORT: 8081
+    tty: true
+    stdin_open: true
+    ports:
+      - "8081:8081"
+    networks:
+      server-network:
+
+  eureka:
+    build:
+      context: eureka
+      dockerfile: Dockerfile
+    image: eureka-server
+    container_name: eureka
+    environment:
+      SERVER_PORT: 8761
+    tty: true
+    stdin_open: true
+    ports:
+      - "8761:8761"
+    networks:
+      server-network:
+
   user-service:
     build:
       context: userService
@@ -10,6 +43,7 @@ services:
     env_file:
       - ./userService/java.env
     environment:
+      EUREKA_URI: http://eureka:8761/eureka
       SERVER_PORT: 8080
       POSTGRES_DATASOURCE_URL: jdbc:postgresql://postgres:5432/high_load_db
       POSTGRES_PASSWORD: example
@@ -24,14 +58,11 @@ services:
       MONGODB_PORT: 27017
       MONGO_DB: highLoadDb
     tty: true
-
     ports:
       - "8080:8080"
-      - "5007:5005"
     stdin_open: true
     networks:
       server-network:
-        ipv4_address: 10.0.15.99
 
   event-service:
     build:
@@ -43,10 +74,11 @@ services:
     env_file:
       - ./eventService/java.env
     environment:
+      EUREKA_URI: http://eureka:8761/eureka
       SERVER_PORT: 8080
       POSTGRES_DATASOURCE_URL: jdbc:postgresql://10.0.15.98:5432/high_load_db
       POSTGRES_PASSWORD: example
-      MINIO_URL: http://10.0.15.97:9000
+      MINIO_URL: http://minio:9000
       MINIO_ACCESS_KEY: example-access-key
       MINIO_SECRET_KEY: example-secret-key
     tty: true
@@ -56,7 +88,6 @@ services:
     stdin_open: true
     networks:
       server-network:
-        ipv4_address: 10.0.15.100
 
   mongodb:
     image: mongo:8.0.4
@@ -67,7 +98,7 @@ services:
     stdin_open: true
     entrypoint: mongod --bind_ip_all
     volumes:
-      - ./mongo-db/mongodb_data:/data/db
+      - ./mongodb_data:/data/db
     networks:
       server-network:
 
@@ -88,7 +119,6 @@ services:
       POSTGRES_PASSWORD: example
     networks:
       server-network:
-        ipv4_address: 10.0.15.98
 
   minio:
     image: minio/minio:latest
@@ -99,7 +129,6 @@ services:
     command: server /data --console-address ":9001"
     networks:
       server-network:
-        ipv4_address: 10.0.15.97
 
 #  high-load-web:
 #    build:
