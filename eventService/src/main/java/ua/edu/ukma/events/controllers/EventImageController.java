@@ -61,7 +61,7 @@ public class EventImageController {
     public @ResponseBody byte[] getImage(@PathVariable UUID eventId, @PathVariable UUID imageId) throws IOException {
         Optional<InputStream> optionalImage = eventService.getImage(eventId, imageId);
         if (optionalImage.isEmpty()) {
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Event or image not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event or image not found");
         }
         return IOUtils.toByteArray(optionalImage.get());
     }

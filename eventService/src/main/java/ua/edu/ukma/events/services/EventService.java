@@ -54,7 +54,7 @@ public class EventService {
         .build();
     }
 
-    private Event convertDtoToEvent(UUID eventId, UUID authorId, EventRequest eventRequest) {
+    private Event convertDtoToEvent(UUID eventId, UUID authorId, List<Map<String, String>> imagesMetadata, EventRequest eventRequest) {
         return Event.builder()
         .eventId(eventId)
         .authorId(authorId)
@@ -66,7 +66,7 @@ public class EventService {
         .locationAddress(eventRequest.getLocationAddress())
         .createdAt(OffsetDateTime.now())
         .updatedAt(OffsetDateTime.now())
-        .imagesMetadata(List.of())
+        .imagesMetadata(imagesMetadata)
         .build();
     }
 
@@ -117,7 +117,7 @@ public class EventService {
         Optional<Event> dbEvent = eventRepository.findById(id);
 
         if (dbEvent.isPresent()) {
-            Event eventToSave = convertDtoToEvent(id, dbEvent.get().getAuthorId(), eventRequest);
+            Event eventToSave = convertDtoToEvent(id, dbEvent.get().getAuthorId(), dbEvent.get().getImagesMetadata(), eventRequest);
             return Optional.of(new EventResponse(eventRepository.save(eventToSave)));
         }
 
