@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,10 +38,10 @@ public class EventService {
         this.storageService = storageService;
     }
 
-    private Event convertDtoToEvent(EventRequest eventRequest) {
+    private Event convertDtoToEvent(UUID authorId, EventRequest eventRequest) {
         return Event.builder()
         .eventId(UUID.randomUUID())
-        .authorId(eventRequest.getAuthorId())
+        .authorId(authorId)
         .title(eventRequest.getTitle())
         .description(eventRequest.getDescription())
         .status(eventRequest.getStatus())
@@ -52,10 +54,10 @@ public class EventService {
         .build();
     }
 
-    private Event convertDtoToEvent(UUID eventId, EventRequest eventRequest) {
+    private Event convertDtoToEvent(UUID eventId, UUID authorId, List<Map<String, String>> imagesMetadata, EventRequest eventRequest) {
         return Event.builder()
         .eventId(eventId)
-        .authorId(eventRequest.getAuthorId())
+        .authorId(authorId)
         .title(eventRequest.getTitle())
         .description(eventRequest.getDescription())
         .status(eventRequest.getStatus())
@@ -64,7 +66,7 @@ public class EventService {
         .locationAddress(eventRequest.getLocationAddress())
         .createdAt(OffsetDateTime.now())
         .updatedAt(OffsetDateTime.now())
-        .imagesMetadata(List.of())
+        .imagesMetadata(imagesMetadata)
         .build();
     }
 
@@ -72,17 +74,33 @@ public class EventService {
         return "events/" + eventId + "/" + imageId.toString();
     }
 
-    public EventResponse create(EventRequest eventRequest) {
-        return new EventResponse(eventRepository.save(convertDtoToEvent(eventRequest)));
+    public EventResponse create(Authentication auth, EventRequest eventRequest) {
+        UUID authorId = (UUID) auth.getPrincipal();
+        return new EventResponse(eventRepository.save(convertDtoToEvent(authorId, eventRequest)));
     }
 
-    public Page<EventResponse> listAll(Integer page, Integer size, String sortBy, String direction, Optional<EventStatus> statusFilter) {
+    public Page<EventResponse> listAll(Optional<Authentication> auth, Integer page, Integer size, String sortBy, String direction, Optional<Set<EventStatus>> statusFilter) {
         Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        if (statusFilter.isPresent()) {
-            return eventRepository.findByStatus(statusFilter.get(), pageable).map(e -> new EventResponse(e));
+
+        boolean isAdmin = false;
+        if (auth.isPresent()) {
+            isAdmin = auth.get().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         }
-        return eventRepository.findAll(pageable).map(e -> new EventResponse(e));
+
+        if (isAdmin) {
+            if (statusFilter.isPresent()) {
+                return eventRepository.findByStatusIn(statusFilter.get(), pageable).map(e -> new EventResponse(e));
+            }
+            return eventRepository.findAll(pageable).map(e -> new EventResponse(e));
+        }
+
+        if (statusFilter.isPresent()) {
+            Set<EventStatus> publicStatusFilter = statusFilter.get();
+            publicStatusFilter.remove(Event.EventStatus.DRAFT);
+            return eventRepository.findByStatusIn(statusFilter.get(), pageable).map(e -> new EventResponse(e));
+        }
+        return eventRepository.findByStatusIn(Set.of(Event.EventStatus.SCHEDULED, Event.EventStatus.ENDED), pageable).map(e -> new EventResponse(e));
     }
 
     public Optional<EventResponse> getById(UUID id) {
@@ -96,8 +114,11 @@ public class EventService {
     }
 
     public Optional<EventResponse> update(UUID id, EventRequest eventRequest) {
-        if (eventRepository.existsById(id)) {
-            return Optional.of(new EventResponse(eventRepository.save(convertDtoToEvent(id, eventRequest))));
+        Optional<Event> dbEvent = eventRepository.findById(id);
+
+        if (dbEvent.isPresent()) {
+            Event eventToSave = convertDtoToEvent(id, dbEvent.get().getAuthorId(), dbEvent.get().getImagesMetadata(), eventRequest);
+            return Optional.of(new EventResponse(eventRepository.save(eventToSave)));
         }
 
         return Optional.empty();
