@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ua.edu.ukma.events.dto.responses.EventResponse;
 import ua.edu.ukma.events.services.EventService;
@@ -52,6 +54,9 @@ public class EventImageController {
         @ApiResponse(responseCode = "404", description = "Event not found")
       }
     )
+    @PreAuthorize(
+     "@eventAuth.hasPublicStatus(#eventId) or (hasRole('ADMIN') and @eventAuth.hasDraftStatus(#eventId))"
+    )
     @GetMapping(value = "/{imageId}", produces = MediaType.IMAGE_JPEG_VALUE)
     public @ResponseBody byte[] getImage(@PathVariable UUID eventId, @PathVariable UUID imageId) throws IOException {
         Optional<InputStream> optionalImage = eventService.getImage(eventId, imageId);
@@ -74,6 +79,7 @@ public class EventImageController {
         @ApiResponse(responseCode = "404", description = "Event not found")
       }
     )
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EventResponse uploadImage(
         @PathVariable UUID eventId,
@@ -98,6 +104,7 @@ public class EventImageController {
         @ApiResponse(responseCode = "404", description = "Event not found")
       }
     )
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{imageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public EventResponse deleteImage(

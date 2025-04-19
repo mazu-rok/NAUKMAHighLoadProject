@@ -1,6 +1,7 @@
 package ua.edu.ukma.events.controllers;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -8,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -62,12 +66,12 @@ public class EventController {
         @ApiResponse(responseCode = "400", description = "Invalid input")
       }
     )
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping
-    public ResponseEntity<EventResponse> createEvent(
-        @RequestBody EventRequest event) 
+    public ResponseEntity<EventResponse> createEvent(Authentication auth, @RequestBody EventRequest event) 
     {
         logger.trace("Received event to save: %s".formatted(event.toString()));
-        EventResponse created = eventService.create(event);
+        EventResponse created = eventService.create(auth, event);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(created);
@@ -80,7 +84,7 @@ public class EventController {
         @Parameter(in = ParameterIn.QUERY, name = "size", required = true, description = "Number of elements on one page. Max is 50"),
         @Parameter(in = ParameterIn.QUERY, name = "sortBy", required = true, description = "Field by which to sort"),
         @Parameter(in = ParameterIn.QUERY, name = "direction", required = true, description = "desc/asc"),
-        @Parameter(in = ParameterIn.QUERY, name = "status", required = false, description = "Filter for event status. If not used, then returns events with all statuses"),
+        @Parameter(in = ParameterIn.QUERY, name = "statuses", required = false, description = "Filter for event status. If not used, then returns events with all statuses"),
       },
       responses = {
         @ApiResponse(responseCode = "200", description = "List of events",
@@ -89,6 +93,7 @@ public class EventController {
     )
     @GetMapping
     public Page<EventResponse> listEvents(
+      Authentication auth,
       @Min(value = 0, message = "Size must be >= 0")
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") 
@@ -97,8 +102,8 @@ public class EventController {
       int size,
       @RequestParam(defaultValue = "createdAt") String sortBy,
       @RequestParam(defaultValue = "desc") String direction,
-      @RequestParam(required = false) EventStatus status) {
-        return eventService.listAll(page, size, sortBy, direction, Optional.ofNullable(status));
+      @RequestParam(required = false) Set<EventStatus> statuses) {
+        return eventService.listAll(Optional.ofNullable(auth), page, size, sortBy, direction, Optional.ofNullable(statuses));
     }
 
     @Operation(
@@ -112,6 +117,9 @@ public class EventController {
                      content = @Content(schema = @Schema(implementation = EventResponse.class))),
         @ApiResponse(responseCode = "404", description = "Event not found")
       }
+    )
+    @PreAuthorize(
+     "@eventAuth.hasPublicStatus(#id) or (hasRole('ADMIN') and @eventAuth.hasDraftStatus(#id))"
     )
     @GetMapping("/{id}")
     public EventResponse getEventById(@PathVariable("id") UUID id) {
@@ -138,6 +146,7 @@ public class EventController {
         @ApiResponse(responseCode = "404", description = "Event not found"),
       }
     )
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}")
     public EventResponse updateEvent(
         @PathVariable("id") UUID id,
@@ -160,6 +169,7 @@ public class EventController {
         @ApiResponse(responseCode = "404", description = "Event not found")
       }
     )
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEvent(@PathVariable("id") UUID id) {
