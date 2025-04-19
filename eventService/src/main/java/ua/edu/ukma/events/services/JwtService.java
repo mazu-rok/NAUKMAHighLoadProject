@@ -34,8 +34,8 @@ public class JwtService {
 
     public UUID getUserId(String token) {
         Claims claims = extractAllClaims(token);
-        UUID role = UUID.fromString(claims.get("id", String.class));
-        return role;
+        UUID userId = UUID.fromString(claims.get("id", String.class));
+        return userId;
     }
 
     public List<SimpleGrantedAuthority> getAuthorities(String token) {
