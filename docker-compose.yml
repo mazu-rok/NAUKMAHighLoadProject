@@ -1,4 +1,15 @@
 services:
+  flyway:
+    container_name: flyway
+    image: flyway/flyway:11.7
+    depends_on:
+      - postgres
+    volumes:
+      - ./postgres-db/migration:/flyway/migration
+    command: -url=jdbc:postgresql://postgres:5432/high_load_db -user=postgres -password=example -locations=filesystem:/flyway/migration migrate
+    networks:
+      - server-network
+
   user-service:
     build:
       context: userService
