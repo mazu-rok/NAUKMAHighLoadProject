@@ -1,6 +1,6 @@
 spring:
   application:
-    name: orders
+    name: orders-service
 
 springdoc:
   swagger-ui:
@@ -12,3 +12,10 @@ spring.data.mongodb:
   host: ${MONGODB_HOST:localhost}
   port: ${MONGODB_PORT:27017}
   database: ${MONGO_DB:highLoadDb}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
