@@ -42,27 +42,19 @@ spring:
             allowedMethods: "*"
             allowedHeaders: "*"
       routes:
+        - id: auth
+          predicates:
+            - Path=/api/v1/auth/**
+          uri: lb://users-service
         - id: users
           predicates:
             - Path=/api/v1/users/**
           uri: lb://users-service
-        - id: users-websocket
+        - id: events
           predicates:
-            - Path=/ws/v1/walks/**
-          uri: lb://users-service
-          #        - id: events
-#          uri: http://localhost:8081
-#          predicates:
-#            - Path=/api/v1/events/**
-#        - id: orders
-#          uri: http://localhost:8081
-#          predicates:
-#            - Path=/api/v1/orders/**
-#        - id: websocket
-#          uri: ws://localhost:8081
-#          predicates:
-#            - Path=/ws/v1/seats/**
-#        - id: web
-#          uri: lb://users
-#          predicates:
-#            - Path=/**
+            - Path=/api/v1/events/**
+          uri: lb://event-service
+        - id: web
+          uri: http://localhost:3000
+          predicates:
+            - Path=/**

@@ -76,7 +76,7 @@ services:
     environment:
       EUREKA_URI: http://eureka:8761/eureka
       SERVER_PORT: 8080
-      POSTGRES_DATASOURCE_URL: jdbc:postgresql://10.0.15.98:5432/high_load_db
+      POSTGRES_DATASOURCE_URL: jdbc:postgresql://postgres:5432/high_load_db
       POSTGRES_PASSWORD: example
       MINIO_URL: http://minio:9000
       MINIO_ACCESS_KEY: example-access-key
