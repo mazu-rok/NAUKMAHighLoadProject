@@ -1,5 +1,6 @@
 package ua.edu.ukma.events.repositories;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import ua.edu.ukma.events.entities.Event.EventStatus;
 public interface EventRepository extends JpaRepository<Event, UUID> {
     Page<Event> findByAuthorId(UUID authorId, Pageable pageable);
     Page<Event> findByStatus(EventStatus status, Pageable pageable);
+    Page<Event> findByStatusIn(Set<EventStatus> statuses, Pageable pageable);
 
     @Modifying(clearAutomatically = true)
     @Transactional

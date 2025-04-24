@@ -6,7 +6,6 @@ spring:
     username: ${POSTGRES_USERNAME:postgres}
     password: ${POSTGRES_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
-  flyway.enabled: true
   jpa:
     hibernate:
       ddl-auto: none

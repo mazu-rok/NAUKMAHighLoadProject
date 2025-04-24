@@ -1,4 +1,14 @@
 services:
+  flyway:
+    container_name: flyway
+    image: flyway/flyway:11.7
+    depends_on:
+      - postgres
+    volumes:
+      - ./postgres-db/migration:/flyway/migration
+    command: -url=jdbc:postgresql://postgres:5432/high_load_db -user=postgres -password=example -locations=filesystem:/flyway/migration migrate
+    networks:
+      - server-network
   api-gateway:
     build:
       context: api-gateway
@@ -30,7 +40,7 @@ services:
     ports:
       - "8761:8761"
     networks:
-      server-network:
+      - server-network
 
   user-service:
     build:
@@ -62,7 +72,7 @@ services:
       - "8080:8080"
     stdin_open: true
     networks:
-      server-network:
+      - server-network
 
   event-service:
     build:
@@ -81,13 +91,14 @@ services:
       MINIO_URL: http://minio:9000
       MINIO_ACCESS_KEY: example-access-key
       MINIO_SECRET_KEY: example-secret-key
+      JWT_SECRET_KEY: "LJQTjyGnd3oOiVAMssQgG62qDv6xgOdXbRPFKGzWqfU=" #base64
     tty: true
 
     ports:
       - "8081:8080"
     stdin_open: true
     networks:
-      server-network:
+      - server-network
 
   mongodb:
     image: mongo:8.0.4
@@ -128,7 +139,7 @@ services:
       MINIO_SECRET_KEY: example-secret-key
     command: server /data --console-address ":9001"
     networks:
-      server-network:
+      - server-network
 
 #  high-load-web:
 #    build:
