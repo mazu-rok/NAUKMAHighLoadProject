@@ -1,0 +1,60 @@
+#spring:
+#  profiles:
+#    active: ${GATEWAY_PROFILE}
+
+server:
+#  http2:
+#    enabled: true
+#  ssl:
+#    enabled: true
+#    key-alias: ${SSL_KEY_ALIAS}
+#    key-store-type: PKCS12
+#    key-store: classpath:keystore/api-gateway.p12
+#    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+  port: ${SERVER_PORT:8081}
+
+logging:
+  level:
+#    root: DEBUG
+    org.springframework.security.web.access.AccessDeniedHandlerImpl: DEBUG
+    org.springframework.web: TRACE
+    org.springframework.security: DEBUG
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+      routes:
+        - id: auth
+          predicates:
+            - Path=/api/v1/auth/**
+          uri: lb://users-service
+        - id: users
+          predicates:
+            - Path=/api/v1/users/**
+          uri: lb://users-service
+        - id: events
+          predicates:
+            - Path=/api/v1/events/**
+          uri: lb://event-service
+        - id: web
+          uri: http://localhost:3000
+          predicates:
+            - Path=/**
