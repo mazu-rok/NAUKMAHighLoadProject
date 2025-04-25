@@ -19,11 +19,11 @@ services:
       EUREKA_URI: http://eureka:8761/eureka
 #      SSL_KEY_ALIAS: ${SSL_KEY_ALIAS}
 #      SSL_KEY_STORE_PASSWORD: ${SSL_KEY_STORE_PASSWORD}
-      SERVER_PORT: 8081
+      SERVER_PORT: 8082
     tty: true
     stdin_open: true
     ports:
-      - "8081:8081"
+      - "8082:8082"
     networks:
       server-network:
 
@@ -85,7 +85,7 @@ services:
       - ./eventService/java.env
     environment:
       EUREKA_URI: http://eureka:8761/eureka
-      SERVER_PORT: 8080
+      SERVER_PORT: 8081
       POSTGRES_DATASOURCE_URL: jdbc:postgresql://postgres:5432/high_load_db
       POSTGRES_PASSWORD: example
       MINIO_URL: http://minio:9000
@@ -95,10 +95,26 @@ services:
     tty: true
 
     ports:
-      - "8081:8080"
+      - "8081:8081"
     stdin_open: true
     networks:
       - server-network
+
+  web:
+    build:
+      context: web
+    image: web-server
+    container_name: web-server
+    depends_on:
+      - api-gateway
+      - user-service
+      - event-service
+    # environment:
+    #   API_GATEWAY_URL: http://api-gateway:8081
+    ports:
+      - "3000:3000"
+    networks:
+      - server-network    
 
   mongodb:
     image: mongo:8.0.4
@@ -130,6 +146,8 @@ services:
       POSTGRES_PASSWORD: example
     networks:
       server-network:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   minio:
     image: minio/minio:latest
@@ -140,6 +158,8 @@ services:
     command: server /data --console-address ":9001"
     networks:
       - server-network
+    volumes:
+      - minio_data:/data
 
 #  high-load-web:
 #    build:
@@ -159,3 +179,9 @@ networks:
       driver: default
       config:
         - subnet: 10.0.15.0/24
+
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local
