@@ -22,8 +22,10 @@ services:
       SERVER_PORT: 8081
     tty: true
     stdin_open: true
+    depends_on:
+      - eureka
     ports:
-      - "8081:8081"
+      - "80:8081"
     networks:
       server-network:
 
