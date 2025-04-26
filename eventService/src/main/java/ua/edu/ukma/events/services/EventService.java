@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import ua.edu.ukma.events.dto.requests.EventRequest;
 import ua.edu.ukma.events.dto.responses.EventResponse;
 import ua.edu.ukma.events.entities.Event;
@@ -26,6 +28,7 @@ import ua.edu.ukma.events.entities.Event.EventStatus;
 import ua.edu.ukma.events.repositories.EventRepository;
 
 @Service
+@Slf4j
 public class EventService {
     private final EventRepository eventRepository;
     private final StorageService storageService;
@@ -103,7 +106,9 @@ public class EventService {
         return eventRepository.findByStatusIn(Set.of(Event.EventStatus.SCHEDULED, Event.EventStatus.ENDED), pageable).map(e -> new EventResponse(e));
     }
 
+    @Cacheable(value="event")
     public Optional<EventResponse> getById(UUID id) {
+        log.info("[CACHE MISS] Fetching event from db.");
         Optional<Event> event = eventRepository.findById(id);
 
         if (event.isPresent()) {
