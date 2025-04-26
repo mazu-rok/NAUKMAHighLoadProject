@@ -19,6 +19,9 @@ public class BookingQueueConfig {
     @Value("${booking.routing-key}")
     private String bookingRoutingKey;
 
+    @Value("${booking.expired.routing-key}")
+    private String expiredBookingRoutingKey;
+
     @Value("${booking.ttl}")
     private int bookingTTL;
 
@@ -36,10 +39,26 @@ public class BookingQueueConfig {
     }
 
     @Bean
+    public Queue expiredBookingQueue() {
+        // Declare temporary queue just for this server
+        // To read statuses of expired bookings from db
+        String queueName = "booking.expired." + UUID.randomUUID();
+        return QueueBuilder.nonDurable(queueName).exclusive().autoDelete().build();
+    }
+
+    @Bean
     public Binding bindDeferred(Queue deferredBookingQueue, DirectExchange bookingExchange) {
         return BindingBuilder
             .bind(deferredBookingQueue)
             .to(bookingExchange)
             .with(bookingRoutingKey);
+    }
+
+    @Bean
+    public Binding bindExpired(Queue expiredBookingQueue, DirectExchange bookingExchange) {
+        return BindingBuilder
+            .bind(expiredBookingQueue)
+            .to(bookingExchange)
+            .with(expiredBookingRoutingKey);
     }
 }

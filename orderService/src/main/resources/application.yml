@@ -11,10 +11,10 @@ spring:
 # Rabbitmq queues
 booking.exchange: booking.exchange
 booking.defer.queue: booking.defer.queue
-booking.dlx: booking.dlx
 booking.dead.queue: booking.dead.queue
 booking.ttl: 10000 # 10 seconds in ms
 booking.routing-key: booked
+booking.expired.routing-key: expired
 
 springdoc:
   swagger-ui:

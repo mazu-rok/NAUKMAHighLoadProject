@@ -23,8 +23,14 @@ public class BookingService {
     @Value("#{deferredBookingQueue.name}")
     private String deferredBookingQueueName;
 
+    @Value("#{expiredBookingQueue.name}")
+    private String expiredBookingQueueName;
+
     @Value("${booking.routing-key}")
     private String bookingRoutingKey;
+
+    @Value("${booking.expired.routing-key}")
+    private String expiredBookingRoutingKey;
 
     public BookingService(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
@@ -38,14 +44,26 @@ public class BookingService {
 
     // Receive messages about booking, from server specific queue
     @RabbitListener(queues = "#{deferredBookingQueue.name}")
-    public void handleDeferredBooking(String bookingId) {
+    public void readDeferredBooking(String bookingId) {
         log.warn("Received booking: " + bookingId);
     }
 
-    // Receive messages when the booking is expired
+    // Receive messages when the booking is expired to update in db
+    // It should do only one server
     @RabbitListener(queues = "${booking.dead.queue}")
     public void handleExpiredBooking(String bookingId) {
-        log.warn("Booking expired: " + bookingId);
+        log.warn("Updating expired booking in db: " + bookingId);
+
+        // Sending message that booking status was updated
+        rabbitTemplate.convertAndSend(bookingExchange, expiredBookingRoutingKey, bookingId);
+    }
+
+    // Receive messages when the booking is expired and its status was already updated
+    // To read its status from db
+    // It will do all servers
+    @RabbitListener(queues = "#{expiredBookingQueue.name}")
+    public void readExpiredBooking(String bookingId) {
+        log.warn("Reading expired booking status from db: " + bookingId);
     }
 
     // Test that booking queues are working
