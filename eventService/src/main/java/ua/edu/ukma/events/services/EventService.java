@@ -9,11 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -32,13 +28,15 @@ import ua.edu.ukma.events.repositories.EventRepository;
 public class EventService {
     private final EventRepository eventRepository;
     private final StorageService storageService;
+    private final CachingEventService cachingEventService;
 
     @Value("${images-bucket-name}")
     private String imagesBucketName;
 
-    public EventService(EventRepository eventRepository, StorageService storageService) {
+    public EventService(EventRepository eventRepository, StorageService storageService, CachingEventService cachingEventService) {
         this.eventRepository = eventRepository;
         this.storageService = storageService;
+        this.cachingEventService = cachingEventService;
     }
 
     private Event convertDtoToEvent(UUID authorId, EventRequest eventRequest) {
@@ -83,39 +81,20 @@ public class EventService {
     }
 
     public Page<EventResponse> listAll(Optional<Authentication> auth, Integer page, Integer size, String sortBy, String direction, Optional<Set<EventStatus>> statusFilter) {
-        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-
         boolean isAdmin = false;
         if (auth.isPresent()) {
             isAdmin = auth.get().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         }
 
         if (isAdmin) {
-            if (statusFilter.isPresent()) {
-                return eventRepository.findByStatusIn(statusFilter.get(), pageable).map(e -> new EventResponse(e));
-            }
-            return eventRepository.findAll(pageable).map(e -> new EventResponse(e));
+            return cachingEventService.listAllPrivate(page, size, sortBy, direction, statusFilter);
         }
 
-        if (statusFilter.isPresent()) {
-            Set<EventStatus> publicStatusFilter = statusFilter.get();
-            publicStatusFilter.remove(Event.EventStatus.DRAFT);
-            return eventRepository.findByStatusIn(statusFilter.get(), pageable).map(e -> new EventResponse(e));
-        }
-        return eventRepository.findByStatusIn(Set.of(Event.EventStatus.SCHEDULED, Event.EventStatus.ENDED), pageable).map(e -> new EventResponse(e));
+        return cachingEventService.listAllPublic(page, size, sortBy, direction, statusFilter);
     }
 
-    @Cacheable(value="event")
     public Optional<EventResponse> getById(UUID id) {
-        log.info("[CACHE MISS] Fetching event from db.");
-        Optional<Event> event = eventRepository.findById(id);
-
-        if (event.isPresent()) {
-            return Optional.of(new EventResponse(event.get()));
-        }
-
-        return Optional.empty();
+        return cachingEventService.getById(id);
     }
 
     public Optional<EventResponse> update(UUID id, EventRequest eventRequest) {
