@@ -1,0 +1,92 @@
+{
+  "users": [
+    {
+      "name": "admin",
+      "password": "admin",
+      "tags": "administrator"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "admin",
+      "vhost": "orders",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "orders",
+      "tracing": false
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "booking.exchange",
+      "vhost": "orders",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "booking.dlx",
+      "vhost": "orders",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "booking.defer.queue",
+      "vhost": "orders",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "booking.dead.queue",
+      "vhost": "orders",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "booking.exchange",
+      "vhost": "orders",
+      "destination": "booking.defer.queue",
+      "destination_type": "queue",
+      "routing_key": "booked",
+      "arguments": {}
+    },
+    {
+      "source": "booking.dlx",
+      "vhost": "orders",
+      "destination": "booking.dead.queue",
+      "destination_type": "queue",
+      "routing_key": "expired",
+      "arguments": {}
+    }
+  ],
+  "policies": [
+    {
+      "vhost": "orders",
+      "name": "deferred-bookings",
+      "pattern": "^booking\\.defer\\.queue$",
+      "definition": {
+        "message-ttl": 10000,
+        "dead-letter-exchange": "booking.dlx",
+        "dead-letter-routing-key": "expired"
+      },
+      "priority": 0,
+      "apply-to": "queues"
+    }
+  ]
+}

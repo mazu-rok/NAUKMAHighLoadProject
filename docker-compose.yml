@@ -105,6 +105,37 @@ services:
     networks:
       - server-network
 
+  order-service:
+    build:
+      context: orderService
+    image: order-server
+    container_name: order-server
+    depends_on:
+      - postgres
+      - rabbitmq
+    env_file:
+      - ./orderService/java.env
+    environment:
+      EUREKA_URI: http://eureka:8761/eureka
+      SERVER_PORT: 8083
+      POSTGRES_DATASOURCE_URL: jdbc:postgresql://postgres:5432/high_load_db
+      POSTGRES_PASSWORD: example
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGO_DB: highLoadDb
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_VHOST: orders
+      RABBITMQ_USER: admin
+      RABBITMQ_PASSWORD: admin
+      JWT_SECRET_KEY: "LJQTjyGnd3oOiVAMssQgG62qDv6xgOdXbRPFKGzWqfU=" #base64
+    tty: true
+
+    ports:
+      - "8083:8083"
+    stdin_open: true
+    networks:
+      - server-network
+
   web:
     build:
       context: web
@@ -153,6 +184,19 @@ services:
       server-network:
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    restart: unless-stopped
+    networks:
+      - server-network
 
   minio:
     image: minio/minio:latest
@@ -172,19 +216,6 @@ services:
     networks:
       - server-network
 
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    ports:
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
-    restart: unless-stopped
-    networks:
-      - server-network
-
 networks:
   server-network:
     ipam:
@@ -196,4 +227,6 @@ volumes:
   postgres_data:
     driver: local
   minio_data:
+    driver: local
+  rabbitmq_data:
     driver: local
