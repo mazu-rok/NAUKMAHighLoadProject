@@ -1,6 +1,20 @@
 spring:
   application:
     name: orders-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    virtual-host: ${RABBITMQ_VHOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASSWORD}
+
+# Rabbitmq queues
+booking.exchange: booking.exchange
+booking.defer.queue: booking.defer.queue
+booking.dead.queue: booking.dead.queue
+booking.ttl: 10000 # 10 seconds in ms
+booking.routing-key: booked
+booking.expired.routing-key: expired
 
 springdoc:
   swagger-ui:
