@@ -163,17 +163,17 @@ services:
     volumes:
       - minio_data:/data
 
-#  high-load-web:
-#    build:
-#      context: web
-#    image: high-load-server
-#    container_name: high-load-server
-#    tty: true
-#    stdin_open: true
-#    ports:
-#      - "3000:3000"
-#    networks:
-#      server-network:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    restart: unless-stopped
+    networks:
+      - server-network
 
 networks:
   server-network:
