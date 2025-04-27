@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import '@mantine/core/styles.css';
-
+import '@mantine/carousel/styles.css';
 import { createTheme, MantineProvider } from '@mantine/core';
 
 const theme = createTheme({});
