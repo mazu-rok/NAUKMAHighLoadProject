@@ -2,11 +2,11 @@ spring:
   application:
     name: orders-service
   rabbitmq:
-    host: ${RABBITMQ_HOST}
-    virtual-host: ${RABBITMQ_VHOST}
+    host: ${RABBITMQ_HOST:localhost}
+    virtual-host: ${RABBITMQ_VHOST:orders}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER}
-    password: ${RABBITMQ_PASSWORD}
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASSWORD:admin}
 
 # Rabbitmq queues
 booking.exchange: booking.exchange
@@ -24,7 +24,7 @@ springdoc:
 
 spring.data.mongodb:
   host: ${MONGODB_HOST:localhost}
-  port: ${MONGODB_PORT:27017}
+  port: ${MONGODB_PORT:27077}
   database: ${MONGO_DB:highLoadDb}
 
 eureka:
