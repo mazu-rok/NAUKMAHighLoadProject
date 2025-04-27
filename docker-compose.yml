@@ -151,7 +151,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - server-network    
+      - server-network
 
   mongodb:
     image: mongo:8.0.4

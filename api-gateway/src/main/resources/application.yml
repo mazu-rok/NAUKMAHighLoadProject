@@ -54,7 +54,7 @@ spring:
           predicates:
             - Path=/api/v1/events/**
           uri: lb://events-service
-        - id: web
-          uri: http://web:3000
-          predicates:
-            - Path=/**
+#        - id: web
+#          uri: http://web:3000
+#          predicates:
+#            - Path=/**

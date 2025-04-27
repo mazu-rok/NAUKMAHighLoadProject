@@ -12,7 +12,6 @@ import {
     Stack,
     Center
 } from "@mantine/core";
-import { ApiService } from '@/services/ApiService';
 
 
 export default function SignInPage() {
@@ -33,7 +32,17 @@ export default function SignInPage() {
 
     const onSubmit = async (values: { username: string; password: string }) => {
         try {
-            const data = await ApiService.login(values.username, values.password);
+            const res = await fetch(`/api/auth/signin`, {
+                method: 'POST',
+                body: JSON.stringify({ username: values.username, password: values.password }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Failed to sign in");
+            }
+            const data = await res.json();
+
             console.log('Login successful:', data);
             localStorage.setItem('userId', data.id);
             localStorage.setItem('accessToken', data.accessToken);
@@ -42,13 +51,16 @@ export default function SignInPage() {
         } catch (error) {
             console.error('Login error:', error);
             window.alert('Login error: ' + error);
-
         }
     };
 
     return (
-                <Paper p="xl" style={{width: "100%", height: "100%",borderRadius: '80px'}}>
-                    <form onSubmit={form.onSubmit(onSubmit)}>
+        <Paper p="xl" style={{
+            width: "100%", height: "auto", borderRadius: '80px', display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+        }}>
+            <form onSubmit={form.onSubmit(onSubmit)} style={{width: "30%", minWidth: "600px", height: "100%", padding: "20px"}}>
                         <Stack>
                             <Center>
                                 <Text size="xl" fw={500}>
