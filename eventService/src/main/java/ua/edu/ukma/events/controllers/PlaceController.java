@@ -26,16 +26,15 @@ import java.util.List;
 public class PlaceController {
 
   private final PlaceService placeService;
-  private final Logger logger = LoggerFactory.getLogger(PlaceController.class);
 
   public PlaceController(PlaceService placeService) {
     this.placeService = placeService;
   }
 
   @Operation(
-    summary = "Get all places",
+    summary = "Get all places by eventId",
     responses = {
-      @ApiResponse(responseCode = "200", description = "List of places",
+      @ApiResponse(responseCode = "200", description = "List of places by eventId",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = PlaceResponse.class))))
     }
   )
