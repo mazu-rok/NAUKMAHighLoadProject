@@ -73,13 +73,11 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(
       Authentication auth,
-      @RequestBody EventRequest event,
-      @RequestParam(defaultValue = "8") int rows,
-      @RequestParam(defaultValue = "8") int places
+      @RequestBody EventRequest event
     ) {
         logger.trace("Received event to save: %s".formatted(event.toString()));
         EventResponse created = eventService.create(auth, event);
-        placeService.fillUpPlaces(rows, places, created.getEventId());
+        placeService.fillUpPlaces(event.getRows(), event.getPlaces(), created.getEventId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(created);

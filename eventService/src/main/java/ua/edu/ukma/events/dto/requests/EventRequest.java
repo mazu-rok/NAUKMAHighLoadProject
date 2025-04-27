@@ -13,6 +13,6 @@ public class EventRequest {
     private OffsetDateTime startTime;
     private OffsetDateTime endTime;
     private String locationAddress;
-    private int rows;
-    private int places;
+    private int rows = 8;
+    private int places = 8;
 }
