@@ -1,64 +1,113 @@
 'use client'
-import { Modal, Button, Group, TextInput } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from "@mantine/hooks";
-import { useRouter } from 'next/navigation'
+import {useForm} from '@mantine/form';
+import {useRouter} from 'next/navigation'
+import {
+    TextInput,
+    PasswordInput,
+    Button,
+    Text,
+    Anchor,
+    Paper,
+    Stack,
+    Center,
+} from "@mantine/core";
 
 
 export default function SignUpPage() {
-  const form = useForm({
-    mode: 'uncontrolled',
-    initialValues: {
-      email: '',
-      password: '',
-      termsOfService: false,
-    },
+    const form = useForm({
+        mode: 'uncontrolled',
+        initialValues: {
+            username: '',
+            email: '',
+            password: '',
+        },
 
-    validate: {
-      email: (value:string) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      password: (value:string) => (value.length > 7 ? null : 'Invalid password'),
-    },
-  });
-  const [opened, { close }] = useDisclosure(true);
+        validate: {
+            email: (value: string) => (/^\S+@\S+$/.test(value) ? null : 'Неправильний email'),
+            username: (value: string) => (value.length > 4 ? null : 'Неправильний username, довжина має бути більше 4 символів'),
+            password: (value: string) => (value.length > 7 ? null : 'Неправильний пароль, довжина має бути більше 7 символів'),
+        },
+    });
 
-  const router = useRouter()
+    const router = useRouter()
 
-  const onSubmit = () => {
-    router.push('/events')
-    close();
-  }
+    const onSubmit = async (values: { username: string; email: string, password: string }) => {
+        try {
+            const res = await fetch(`/api/auth/signup`, {
+                method: 'POST',
+                body: JSON.stringify({ username: values.username, email: values.email, password: values.password }),
+            });
 
-  return (
-      <Modal opened={opened} onClose={close} withCloseButton={false} closeOnClickOutside={false}>
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Failed to sign up");
+            }
+            const data = await res.json();
+            console.log('Registration successful:', data);
+            localStorage.setItem('userId', data.id);
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+            router.push('/events');
+        } catch (error) {
+            console.error('Registration error:', error);
+            window.alert('Registration error: ' + error);
+        }
+    };
 
-        <form onSubmit={form.onSubmit(onSubmit)}>
-          <TextInput
-              withAsterisk
-              label="Email"
-              placeholder="your@email.com"
-              key={form.key('email')}
-              {...form.getInputProps('email')}
-              mb='md'
-          />
+    return (
+        <Paper p="xl" style={{
+            width: "100%", height: "auto", borderRadius: '80px', display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+        }}>
+            <form onSubmit={form.onSubmit(onSubmit)} style={{width: "30%", minWidth: "600px", height: "100%", padding: "20px"}}>
+                <Stack>
+                    <Center>
+                        <Text size="xl" fw={500}>
+                            РЕЄСТРАЦІЯ
+                        </Text>
+                    </Center>
 
-          <TextInput
-              withAsterisk
-              label="Passwrd"
-              placeholder="password"
-              key={form.key('password')}
-              {...form.getInputProps('password')}
-          />
+                    <TextInput
+                        withAsterisk
+                        label="Ваш username"
+                        placeholder="username"
+                        {...form.getInputProps('username')}
+                        mb='md'
+                        required
+                    />
+                    <TextInput
+                        withAsterisk
+                        label="Ваш email"
+                        placeholder="email"
+                        {...form.getInputProps('email')}
+                        mb='md'
+                        required
+                    />
 
-          <Group justify="flex-end" mt="md">
-            <Button type="submit">Sign up</Button>
-          </Group>
+                    <PasswordInput
+                        withAsterisk
+                        label="Ваш пароль"
+                        placeholder="Ваш пароль"
+                        key={form.key('password')}
+                        {...form.getInputProps('password')}
+                        required
+                    />
 
-          <Group justify="center" mt="md">
-            <Button onClick={() => router.push('/sign-in')} variant="white">
-              Go to login
-            </Button>
-          </Group>
-        </form>
-      </Modal>
-  );
+                    <Button type="submit" fullWidth color="dark" size="md" radius="sm">
+                        ЗАРЕЄСТРУВАТИСЬ
+                    </Button>
+
+                    <Center>
+                        <Text size="sm" color="dimmed">
+                            Вже маєте аккаунт?{" "}
+                            <Anchor onClick={() => router.push('/sign-in')}>
+                                ВХІД ДО КАБІНЕТУ
+                            </Anchor>
+                        </Text>
+                    </Center>
+                </Stack>
+            </form>
+        </Paper>
+    );
 }

@@ -9,6 +9,7 @@ services:
     command: -url=jdbc:postgresql://postgres:5432/high_load_db -user=postgres -password=example -locations=filesystem:/flyway/migration migrate
     networks:
       - server-network
+
   api-gateway:
     build:
       context: api-gateway
@@ -145,12 +146,12 @@ services:
       - api-gateway
       - user-service
       - event-service
-    # environment:
-    #   API_GATEWAY_URL: http://api-gateway:8081
+    environment:
+      NEXT_PUBLIC_API_URL: http://api-gateway:8082
     ports:
       - "3000:3000"
     networks:
-      - server-network    
+      - server-network
 
   mongodb:
     image: mongo:8.0.4
@@ -177,6 +178,8 @@ services:
     #    target: /dev/shm
     #    tmpfs:
     #      size: 134217728 # 128*2^20 bytes = 128Mb
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: high_load_db
       POSTGRES_PASSWORD: example
@@ -205,6 +208,8 @@ services:
       MINIO_ACCESS_KEY: example-access-key
       MINIO_SECRET_KEY: example-secret-key
     command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
     networks:
       - server-network
     volumes:

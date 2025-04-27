@@ -1,3 +1,4 @@
+import AppShell from "@/components/common/AppShell/AppShell";
 import type { Metadata } from "next";
 import "./globals.css";
 import '@mantine/core/styles.css';
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
       <MantineProvider theme={theme}>
+        <AppShell>
           {children}
+        </AppShell>
       </MantineProvider>
       </body>
     </html>

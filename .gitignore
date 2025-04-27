@@ -36,3 +36,4 @@ out/
 #secret
 .env
 images/
+node_modules/

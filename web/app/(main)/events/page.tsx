@@ -32,10 +32,13 @@ export default function EventsPage() {
         query.append("statuses", filter);
       }
 
+      const headers: Record<string, string> = {};
+      if (localStorage.getItem('accessToken') != null) {
+        headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`
+      }
+
       const res = await fetch(`/api/events?${query.toString()}`, {
-        headers: {
-          // Authorization: `Bearer ${jwtToken}`,
-        },
+        headers
       });
 
       if (!res.ok) {
