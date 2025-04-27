@@ -33,6 +33,9 @@ public class EventService {
     @Value("${images-bucket-name}")
     private String imagesBucketName;
 
+    @Value("${minio.public-url}")
+    private String minioPublicUrl;
+
     public EventService(EventRepository eventRepository, StorageService storageService, CachingEventService cachingEventService) {
         this.eventRepository = eventRepository;
         this.storageService = storageService;
@@ -145,7 +148,7 @@ public class EventService {
         UUID imageId = UUID.randomUUID();
         String key = getImageStoragePath(eventId, imageId);
 
-        String url = String.format("https://test.com/%s/%s", imagesBucketName, key);
+        String url = String.format("%s/%s/%s", minioPublicUrl, imagesBucketName, key);
 
         List<Map<String, String>> imagesMetadata = event.getImagesMetadata();
         imagesMetadata.add(Map.ofEntries(Map.entry("image_id", imageId.toString()), Map.entry("url", url)));
