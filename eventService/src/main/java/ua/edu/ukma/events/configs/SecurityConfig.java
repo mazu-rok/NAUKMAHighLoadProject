@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .requestMatchers( "/events/swagger/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/events").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/events/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/places").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/places/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/events/*/images/*").permitAll()
                 .anyRequest().hasRole("ADMIN")
             )

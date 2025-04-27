@@ -38,6 +38,7 @@ import ua.edu.ukma.events.dto.requests.EventRequest;
 import ua.edu.ukma.events.dto.responses.EventResponse;
 import ua.edu.ukma.events.entities.Event.EventStatus;
 import ua.edu.ukma.events.services.EventService;
+import ua.edu.ukma.events.services.PlaceService;
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -45,10 +46,12 @@ import ua.edu.ukma.events.services.EventService;
 public class EventController {
 
     private final EventService eventService;
+    private final PlaceService placeService;
     private final Logger logger = LoggerFactory.getLogger(EventController.class);
 
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, PlaceService placeService) {
         this.eventService = eventService;
+        this.placeService = placeService;
     }
 
     @Operation(
@@ -68,10 +71,13 @@ public class EventController {
     )
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping
-    public ResponseEntity<EventResponse> createEvent(Authentication auth, @RequestBody EventRequest event) 
-    {
+    public ResponseEntity<EventResponse> createEvent(
+      Authentication auth,
+      @RequestBody EventRequest event
+    ) {
         logger.trace("Received event to save: %s".formatted(event.toString()));
         EventResponse created = eventService.create(auth, event);
+        placeService.fillUpPlaces(event.getRows(), event.getPlaces(), created.getEventId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(created);
@@ -123,7 +129,7 @@ public class EventController {
     )
     @GetMapping("/{id}")
     public EventResponse getEventById(@PathVariable("id") UUID id) {
-        return eventService.getById(id).orElseThrow(() -> 
+        return eventService.getById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found")
         );
     }
