@@ -48,15 +48,7 @@ export default function SignUpPage() {
   };
 
   return (
-      <div className="bg-orange" style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%"
-      }}>
-        <Container style={{width: "100%"}}>
-          <Paper p="xl" style={{width: "100%", height: "auto", borderRadius: "1.5rem"}}>
+          <Paper p="xl" style={{width: "100%", height: "100%", borderRadius: '80px'}}>
             <form onSubmit={form.onSubmit(onSubmit)}>
               <Stack>
                 <Center>
@@ -106,7 +98,6 @@ export default function SignUpPage() {
               </Stack>
             </form>
           </Paper>
-        </Container>
-      </div>
+
   );
 }

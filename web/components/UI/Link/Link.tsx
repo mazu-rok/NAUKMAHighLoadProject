@@ -10,7 +10,7 @@ interface Props {
 const Link:FC<Props> = ({href, children}) => {
   return (
       <Anchor<typeof NextLink> href={href} component={NextLink}>
-        <Button variant="light">
+        <Button variant="white">
           {children}
         </Button>
       </Anchor>
