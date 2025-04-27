@@ -1,64 +1,112 @@
 'use client'
-import { Modal, Button, Group, TextInput } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from "@mantine/hooks";
-import { useRouter } from 'next/navigation'
+import {useForm} from '@mantine/form';
+import {useRouter} from 'next/navigation'
+import {
+  TextInput,
+  PasswordInput,
+  Button,
+  Text,
+  Anchor,
+  Paper,
+  Container,
+  Stack,
+  Center,
+} from "@mantine/core";
+import { ApiService } from '@/services/ApiService';
 
 
 export default function SignUpPage() {
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
+      username: '',
       email: '',
       password: '',
-      termsOfService: false,
     },
 
     validate: {
-      email: (value:string) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      password: (value:string) => (value.length > 7 ? null : 'Invalid password'),
+      email: (value:string) => (/^\S+@\S+$/.test(value) ? null : 'Неправильний email'),
+      username: (value: string) => (value.length > 4 ? null : 'Неправильний username, довжина має бути більше 4 символів'),
+      password: (value: string) => (value.length > 7 ? null : 'Неправильний пароль, довжина має бути більше 7 символів'),
     },
   });
-  const [opened, { close }] = useDisclosure(true);
 
   const router = useRouter()
 
-  const onSubmit = () => {
-    router.push('/events')
-    close();
-  }
+  const onSubmit = async (values: { username: string; email: string, password: string }) => {
+    try {
+      const data = await ApiService.register(values.username, values.email, values.password);
+      console.log('Registration successful:', data);
+      localStorage.setItem('userId', data.id);
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+      router.push('/events');
+    } catch (error) {
+      console.error('Registration error:', error);
+      window.alert('Registration error: ' + error);
+    }
+  };
 
   return (
-      <Modal opened={opened} onClose={close} withCloseButton={false} closeOnClickOutside={false}>
+      <div className="bg-orange" style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%"
+      }}>
+        <Container style={{width: "100%"}}>
+          <Paper p="xl" style={{width: "100%", height: "auto", borderRadius: "1.5rem"}}>
+            <form onSubmit={form.onSubmit(onSubmit)}>
+              <Stack>
+                <Center>
+                  <Text size="xl" fw={500}>
+                    РЕЄСТРАЦІЯ
+                  </Text>
+                </Center>
 
-        <form onSubmit={form.onSubmit(onSubmit)}>
-          <TextInput
-              withAsterisk
-              label="Email"
-              placeholder="your@email.com"
-              key={form.key('email')}
-              {...form.getInputProps('email')}
-              mb='md'
-          />
+                <TextInput
+                    withAsterisk
+                    label="Ваш username"
+                    placeholder="username"
+                    {...form.getInputProps('username')}
+                    mb='md'
+                    required
+                />
+                <TextInput
+                    withAsterisk
+                    label="Ваш email"
+                    placeholder="email"
+                    {...form.getInputProps('email')}
+                    mb='md'
+                    required
+                />
 
-          <TextInput
-              withAsterisk
-              label="Passwrd"
-              placeholder="password"
-              key={form.key('password')}
-              {...form.getInputProps('password')}
-          />
+                  <PasswordInput
+                      withAsterisk
+                      label="Ваш пароль"
+                      placeholder="Ваш пароль"
+                      key={form.key('password')}
+                      {...form.getInputProps('password')}
+                      required
+                  />
 
-          <Group justify="flex-end" mt="md">
-            <Button type="submit">Sign up</Button>
-          </Group>
+                <Button type="submit" fullWidth color="dark" size="md" radius="sm">
+                  ЗАРЕЄСТРУВАТИСЬ
+                </Button>
 
-          <Group justify="center" mt="md">
-            <Button onClick={() => router.push('/sign-in')} variant="white">
-              Go to login
-            </Button>
-          </Group>
-        </form>
-      </Modal>
+                <Center>
+                  <Text size="sm" color="dimmed">
+                    Вже маєте аккаунт?{" "}
+                    <Anchor onClick={() => router.push('/sign-in')}>
+                      ВХІД ДО КАБІНЕТУ
+                    </Anchor>
+                  </Text>
+                </Center>
+              </Stack>
+            </form>
+          </Paper>
+        </Container>
+      </div>
   );
 }

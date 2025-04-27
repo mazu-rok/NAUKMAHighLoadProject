@@ -34,7 +34,7 @@ export default function EventsPage() {
 
       const res = await fetch(`/api/events?${query.toString()}`, {
         headers: {
-          // Authorization: `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       });
 

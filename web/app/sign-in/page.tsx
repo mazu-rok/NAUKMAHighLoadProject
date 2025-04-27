@@ -1,64 +1,118 @@
 'use client'
-import { Modal, Button, Group, TextInput } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from "@mantine/hooks";
-import { useRouter } from 'next/navigation'
+import {useForm} from '@mantine/form';
+import {useRouter} from 'next/navigation'
+import {
+    TextInput,
+    PasswordInput,
+    Checkbox,
+    Button,
+    Text,
+    Anchor,
+    Paper,
+    Container,
+    Stack,
+    Center,
+} from "@mantine/core";
+import { ApiService } from '@/services/ApiService';
 
 
 export default function SignInPage() {
-  const form = useForm({
-    mode: 'uncontrolled',
-    initialValues: {
-      email: '',
-      password: '',
-      termsOfService: false,
-    },
+    const form = useForm({
+        mode: 'uncontrolled',
+        initialValues: {
+            username: '',
+            password: '',
+        },
 
-    validate: {
-      email: (value:string) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      password: (value:string) => (value.length > 7 ? null : 'Invalid password'),
-    },
-  });
-  const [opened, { close }] = useDisclosure(true);
+        validate: {
+            username: (value: string) => (value.length > 4 ? null : 'Неправильний username, довжина має бути більше 4 символів'),
+            password: (value: string) => (value.length > 7 ? null : 'Неправильний пароль, довжина має бути більше 7 символів'),
+        },
+    });
 
-  const router = useRouter()
+    const router = useRouter()
 
-  const onSubmit = () => {
-    router.push('/events')
-    close();
-  }
+    const onSubmit = async (values: { username: string; password: string }) => {
+        try {
+            const data = await ApiService.login(values.username, values.password);
+            console.log('Login successful:', data);
+            localStorage.setItem('userId', data.id);
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+            router.push('/events');
+        } catch (error) {
+            console.error('Login error:', error);
+            window.alert('Login error: ' + error);
 
-  return (
-    <Modal opened={opened} onClose={close} withCloseButton={false} closeOnClickOutside={false}>
-      <form onSubmit={form.onSubmit(onSubmit)}>
-        <TextInput
-            withAsterisk
-            label="Email"
-            placeholder="your@email.com"
-            key={form.key('email')}
-            {...form.getInputProps('email')}
-            mb='md'
-        />
+        }
+    };
 
-        <TextInput
-            withAsterisk
-            label="Passwrd"
-            placeholder="password"
-            key={form.key('password')}
-            {...form.getInputProps('password')}
-        />
+    return (
+        <div className="bg-orange" style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%"
+        }}>
+            <Container style={{width: "100%"}}>
+                <Paper p="xl" style={{width: "100%", height: "auto", borderRadius: "1.5rem"}}>
+                    <form onSubmit={form.onSubmit(onSubmit)}>
+                        <Stack>
+                            <Center>
+                                <Text size="xl" fw={500}>
+                                    ВХІД ДО КАБІНЕТУ
+                                </Text>
+                            </Center>
 
-        <Group justify="flex-end" mt="md">
-          <Button type="submit">Sign in</Button>
-        </Group>
+                            <TextInput
+                                withAsterisk
+                                label="Ваш username"
+                                placeholder="username"
+                                {...form.getInputProps('username')}
+                                mb='md'
+                                required
+                            />
 
-        <Group justify="center" mt="md">
-          <Button onClick={() => router.push('/sign-up')} variant="white">
-            Go to register
-          </Button>
-        </Group>
+                            <div>
+                                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                                    <Text size="sm" fw={500}>
+                                        Ваш пароль
+                                    </Text>
+                                    <Anchor href="#" size="xs">
+                                        Забули пароль?
+                                    </Anchor>
+                                </div>
 
-      </form>
-    </Modal>
-  );
+                                <PasswordInput
+                                    withAsterisk
+                                    placeholder="Ваш пароль"
+                                    key={form.key('password')}
+                                    {...form.getInputProps('password')}
+                                    required
+                                />
+                            </div>
+
+                            <Checkbox
+                                label="Запам’ятати мене"
+                            />
+
+                            <Button type="submit" fullWidth color="dark" size="md" radius="sm">
+                                УВІЙТИ
+                            </Button>
+
+                            <Center>
+                                <Text size="sm" color="dimmed">
+                                    Не маєте акаунта?{" "}
+                                    <Anchor onClick={() => router.push('/sign-up')}>
+                                        ЗАРЕЄСТРУЙТЕСЯ
+                                    </Anchor>
+                                </Text>
+                            </Center>
+                        </Stack>
+                    </form>
+                </Paper>
+            </Container>
+        </div>
+    );
 }
