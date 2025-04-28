@@ -7,12 +7,16 @@ import {
   Container,
   Loader,
   Paper,
-  Text
+  Text,
+  Box,
+  Divider,
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import EventDetailCard from "@/components/common/events/EventDetailCard";
+import EventDetailCard from "@/components/events/EventDetailCard";
+import { PlaceSelectionContainer } from "@/components/places/PlaceSelectionContainer";
+import {  IconLogin } from "@tabler/icons-react";
 
 export default function EventPage() {
   const params = useParams<{ eventId: string }>();
@@ -21,6 +25,12 @@ export default function EventPage() {
   const [event, setEvent] = useState<EventResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    setIsAuthenticated(!!accessToken);
+  }, []);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -29,12 +39,14 @@ export default function EventPage() {
         setError(null);
 
         const headers: Record<string, string> = {};
-        if (localStorage.getItem('accessToken') != null) {
-          headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`
+        if (localStorage.getItem("accessToken") != null) {
+          headers["Authorization"] = `Bearer ${localStorage.getItem(
+            "accessToken"
+          )}`;
         }
 
         const res = await fetch(`/api/event/${eventId}`, {
-          headers
+          headers,
         });
 
         if (!res.ok) {
@@ -105,13 +117,42 @@ export default function EventPage() {
     );
   }
 
+  const handleRedirectToLogin = () => {
+    router.push("/sign-in");
+  };
+
   return (
-    <Container size="lg" py="xl">
-      <EventDetailCard 
+    <>
+    <Container size="lg" pt="xl">
+      <EventDetailCard
         event={event}
         onBack={() => router.push("/events")}
         onEdit={() => router.push(`/events/${event.eventId}/edit`)}
       />
     </Container>
+    <Container size="lg" py="xl">
+      {event.status === "SCHEDULED" && (
+        <Box mt="xl" ta="center">
+          {!isAuthenticated ? (
+            <>
+              <Button
+                size="lg"
+                color="blue"
+                onClick={handleRedirectToLogin}
+                leftSection={<IconLogin size={18} />}
+              >
+                Login to Buy Tickets
+              </Button>
+            </>
+          ) : (
+            <Box mt="xl">
+              <Divider mb="xl" />
+              <PlaceSelectionContainer eventId={eventId} />
+            </Box>
+          )}
+        </Box>
+      )}
+    </Container>
+    </>
   );
 }

@@ -22,16 +22,19 @@ import java.util.UUID;
 public class PlaceService {
     private final PlaceRepository placeRepository;
     private final EventRepository eventRepository;
-    private final CachingPlaceService cachingPlaceService;
 
-    public PlaceService(PlaceRepository placeRepository, CachingPlaceService cachingPlaceService, EventRepository eventRepository) {
+    public PlaceService(PlaceRepository placeRepository, EventRepository eventRepository) {
         this.placeRepository = placeRepository;
-        this.cachingPlaceService = cachingPlaceService;
         this.eventRepository = eventRepository;
     }
 
     public List<PlaceResponse> listPlacesByEvent(UUID eventId) {
-        return cachingPlaceService.listAllPlacesByEventId(eventId);
+        List<Place> places = placeRepository.findByEvent_EventId(eventId);
+    
+        List<PlaceResponse> result = places.stream()
+          .map(PlaceResponse::new)
+          .toList();
+        return result;
     }
 
     public void fillUpPlaces(int rows, int places, UUID eventId) {

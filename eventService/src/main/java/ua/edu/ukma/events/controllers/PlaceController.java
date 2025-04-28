@@ -21,7 +21,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/v1/places")
+@RequestMapping("/api/v1/events/places")
 @Tag(name = "Places", description = "CRUD operations for places")
 public class PlaceController {
 
