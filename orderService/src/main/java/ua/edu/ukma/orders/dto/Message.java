@@ -1,22 +1,14 @@
 package ua.edu.ukma.orders.dto;
 
+import lombok.Builder;
 import lombok.Data;
-import java.util.Map;
+import ua.edu.ukma.orders.entity.PlaceStatus;
+
+import java.util.UUID;
 
 @Data
+@Builder
 public class Message {
-  private MessageType type;
-  private Map<String, Object> message;
-
-  public Message() {
-  }
-
-  public Message(MessageType type, Map<String, Object> message) {
-    this.type = type;
-    this.message = message;
-  }
-
-  public enum MessageType {
-    CHANGE_PLACE_STATUS
-  }
+  private PlaceStatus status;
+  private UUID placeId;
 }

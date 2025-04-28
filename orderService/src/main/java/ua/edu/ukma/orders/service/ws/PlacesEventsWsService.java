@@ -2,17 +2,15 @@ package ua.edu.ukma.orders.service.ws;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.BinaryWebSocketHandler;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 import ua.edu.ukma.orders.dto.Message;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
-public class PlacesEventsWsService extends BinaryWebSocketHandler {
+public class PlacesEventsWsService extends TextWebSocketHandler {
     private static final Map<String, Set<WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
 
     @Override
@@ -53,17 +51,14 @@ public class PlacesEventsWsService extends BinaryWebSocketHandler {
         }
     }
 
-    private void broadcastForEvent(String eventId, Message message, String sessionId) throws IOException {
+    public void broadcastForEvent(String eventId, Message message) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        String jsonMessage = mapper.writeValueAsString(message);;
+        String jsonMessage = mapper.writeValueAsString(message);
 
         Set<WebSocketSession> sessions = roomSessions.get(eventId);
         if (sessions != null) {
             for (WebSocketSession session : sessions) {
-                if (sessionId != session.getId()) {
-                    session.sendMessage(new TextMessage(jsonMessage));
-                }
-
+                session.sendMessage(new TextMessage(jsonMessage));
             }
         }
     }
