@@ -24,31 +24,31 @@ public class PlacesEventsWsService extends BinaryWebSocketHandler {
     private static final Map<String, Set<WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
 
     @Override
-    public void afterConnectionEstablished(@NonNull WebSocketSession session) throws IOException {
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         String eventId = session.getUri().getQuery().split("=")[1];
         log.info("New connection established, event id: " + eventId);
 
-        session.getAttributes().put("roomId", eventId);
+        session.getAttributes().put("eventId", eventId);
         roomSessions.computeIfAbsent(eventId, _ -> new HashSet<>()).add(session);
-        log.info("Added session: " + session.getId() + ", to room: " + eventId);
+        log.info("Added session: " + session.getId() + ", to event: " + eventId);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        String roomId = (String) session.getAttributes().get("roomId");
+        String eventId = (String) session.getAttributes().get("eventId");
 
         log.info("Connection closed for session: " + session.getId() + ", Status: " + status);
 
-        if (roomId != null) {
-            Set<WebSocketSession> sessionsInRoom = roomSessions.get(roomId);
+        if (eventId != null) {
+            Set<WebSocketSession> sessionsInRoom = roomSessions.get(eventId);
             if (sessionsInRoom != null) {
                 sessionsInRoom.remove(session);
-                log.info("Removed session: " + session.getId() + " from room: " + roomId);
+                log.info("Removed session: " + session.getId() + " from room: " + eventId);
             }
 
             if (sessionsInRoom == null || sessionsInRoom.isEmpty()) {
-                roomSessions.remove(roomId);
-                log.info("Room " + roomId + " is empty. Room closed.");
+                roomSessions.remove(eventId);
+                log.info("Room " + eventId + " is empty. Room closed.");
             }
         }
     }
