@@ -1,7 +1,8 @@
 'use client'
-import { EventCard } from "@/components/common/events/EventCard";
+import { EventCard } from "@/components/events/EventCard";
 import { EventResponse, EventStatus } from "@/components/types/event";
 import { Center, Group, Loader, Paper, Pagination, Select, Text, Title } from "@mantine/core";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type StatusFilterType = EventStatus | "ALL";
@@ -15,7 +16,8 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilterType>("ALL");
-
+  const router = useRouter();
+  
   const fetchEvents = async (currentPage: number, size: number, filter: StatusFilterType) => {
     try {
       setLoading(true);
@@ -40,6 +42,10 @@ export default function EventsPage() {
       const res = await fetch(`/api/events?${query.toString()}`, {
         headers
       });
+
+      if (res.status === 401) {
+        router.push("/sign-in");
+      }
 
       if (!res.ok) {
         const err = await res.json();

@@ -43,6 +43,14 @@ export default async function handler(
       }
     );
 
+    if (response.status == 401) {
+      res.status(401).json({
+        error: "Unauthorized",
+        status: 401,
+      });
+    }
+
+
     if (!response.ok) {
       const errorText = await response.text();
 
