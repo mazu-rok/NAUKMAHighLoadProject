@@ -17,6 +17,6 @@ public class Message {
   }
 
   public enum MessageType {
-    JOIN, LEAVE, BOOK_PLACE, BOOKED_PLACE
+    CHANGE_PLACE_STATUS
   }
 }

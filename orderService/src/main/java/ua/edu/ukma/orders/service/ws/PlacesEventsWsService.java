@@ -31,34 +31,6 @@ public class PlacesEventsWsService extends BinaryWebSocketHandler {
         session.getAttributes().put("roomId", eventId);
         roomSessions.computeIfAbsent(eventId, _ -> new HashSet<>()).add(session);
         log.info("Added session: " + session.getId() + ", to room: " + eventId);
-
-        Map<String, Object> messageData = new HashMap<>();
-        messageData.put("text", "New session: " + session.getId() + " joined to room: " + eventId);
-        Message message = new Message(Message.MessageType.JOIN, messageData);
-        broadcastToRoom(eventId, message, session.getId());
-    }
-
-    @SneakyThrows
-    @Override
-    public void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) {
-        String roomId = (String) session.getAttributes().get("roomId");
-        if (roomId == null) {
-            log.error("roomId is null for session: " + session.getId());
-            return;
-        }
-
-        String payload = message.getPayload();
-        ObjectMapper mapper = new ObjectMapper();
-        Message parsedMessage = mapper.readValue(payload, Message.class);
-
-        log.info("Received message: " + parsedMessage.getMessage());
-        log.info("Received session: " + session.getId());
-
-        Message.MessageType type = parsedMessage.getType();
-        if (type == Message.MessageType.BOOK_PLACE) {
-            parsedMessage.setType(Message.MessageType.BOOKED_PLACE);
-            broadcastToRoom(roomId, parsedMessage, session.getId());
-        }
     }
 
     @Override
@@ -81,11 +53,11 @@ public class PlacesEventsWsService extends BinaryWebSocketHandler {
         }
     }
 
-    private void broadcastToRoom(String roomID, Message message, String sessionId) throws IOException {
+    private void broadcastForEvent(String eventId, Message message, String sessionId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         String jsonMessage = mapper.writeValueAsString(message);;
 
-        Set<WebSocketSession> sessions = roomSessions.get(roomID);
+        Set<WebSocketSession> sessions = roomSessions.get(eventId);
         if (sessions != null) {
             for (WebSocketSession session : sessions) {
                 if (sessionId != session.getId()) {
