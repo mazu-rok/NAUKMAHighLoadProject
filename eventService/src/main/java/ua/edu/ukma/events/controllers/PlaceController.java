@@ -42,4 +42,19 @@ public class PlaceController {
   public List<PlaceResponse> listPlacesByEventId(@RequestParam UUID eventId) {
     return placeService.listPlacesByEvent(eventId);
   }
+
+  @GetMapping("/{placeId}")
+  public PlaceResponse getPlace(@PathVariable UUID placeId) {
+    return placeService.getPlace(placeId);
+  }
+
+  @PostMapping("/{placeId}/order")
+  public PlaceResponse orderPlace(@PathVariable UUID placeId) {
+    return placeService.orderPlace(placeId);
+  }
+
+  @PostMapping("/{placeId}/book")
+  public PlaceResponse bookPlace(@PathVariable UUID placeId) {
+    return placeService.bookPlace(placeId);
+  }
 }
