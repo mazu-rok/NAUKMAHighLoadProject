@@ -7,6 +7,14 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:admin}
     password: ${RABBITMQ_PASSWORD:admin}
+  datasource:
+    url: ${POSTGRES_DATASOURCE_URL:jdbc:postgresql://localhost:5432/high_load_db}
+    username: ${POSTGRES_USERNAME:postgres}
+    password: ${POSTGRES_PASSWORD:example}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
 
 # Rabbitmq queues
 booking.exchange: booking.exchange
