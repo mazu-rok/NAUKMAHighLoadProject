@@ -1,6 +1,7 @@
 package ua.edu.ukma.orders.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ua.edu.ukma.orders.dto.TicketDto;
 import ua.edu.ukma.orders.dto.response.BucketResponse;
+import ua.edu.ukma.orders.entity.Order;
 import ua.edu.ukma.orders.service.BucketService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -66,7 +69,7 @@ public class BucketController {
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Ticket removed"),
+                    @ApiResponse(responseCode = "204", description = "Ticket removed"),
                     @ApiResponse(responseCode = "400", description = "Invalid input")
             }
     )
@@ -74,6 +77,35 @@ public class BucketController {
     @DeleteMapping
     public void removeTicket(@PathVariable UUID userId, @RequestBody TicketDto request) throws Exception {
         bucketService.removeTicket(userId, request);
+    }
 
+    @Operation(
+            summary = "Buy tickets from the bucket",
+            description = "Buy tickets from the bucket",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Order",
+                            content = @Content(schema = @Schema(implementation = Order.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid input")
+            }
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/orders")
+    public Order buyTickets(@PathVariable UUID userId) throws Exception {
+        return bucketService.buyTickets(userId);
+    }
+
+    @Operation(
+            summary = "Get user's orders",
+            description = "Get user's orders",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Orders",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Order.class)))),
+                    @ApiResponse(responseCode = "400", description = "Invalid input")
+            }
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/orders")
+    public List<Order> getUserOrders(@PathVariable UUID userId) throws Exception {
+        return bucketService.getOrders(userId);
     }
 }

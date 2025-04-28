@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface TicketRepository extends JpaRepository<Ticket, UUID> {
     List<Ticket> findByUserId(UUID userId);
+    int deleteByUserId(UUID userId);
 
     int deleteByUserIdAndEventIdAndPlaceId(UUID userId, UUID eventId, UUID placeId);
 }
