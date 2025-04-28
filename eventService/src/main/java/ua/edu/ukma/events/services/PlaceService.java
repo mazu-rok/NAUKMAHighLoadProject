@@ -1,5 +1,6 @@
 package ua.edu.ukma.events.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.Authentication;
@@ -53,5 +54,24 @@ public class PlaceService {
                 placeRepository.save(place);
             }
         }
+    }
+
+    public PlaceResponse getPlace(UUID placeId) {
+        Place place = placeRepository.findById(placeId).orElseThrow(() -> new EntityNotFoundException("Place not found"));
+        return new PlaceResponse(place);
+    }
+
+    public PlaceResponse orderPlace(UUID placeId) {
+        Place place = placeRepository.findById(placeId).orElseThrow(() -> new EntityNotFoundException("Place not found"));
+        place.setStatus(Place.PlaceStatus.ORDERED);
+        placeRepository.save(place);
+        return new PlaceResponse(place);
+    }
+
+    public PlaceResponse bookPlace(UUID placeId) {
+        Place place = placeRepository.findById(placeId).orElseThrow(() -> new EntityNotFoundException("Place not found"));
+        place.setStatus(Place.PlaceStatus.BOOKED);
+        placeRepository.save(place);
+        return new PlaceResponse(place);
     }
 }
