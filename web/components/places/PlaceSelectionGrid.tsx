@@ -80,7 +80,7 @@ export const PlaceSelectionGrid: React.FC = () => {
             h={16} 
             mr="xs" 
             style={{ 
-              backgroundColor: 'var(--mantine-color-gray-6)', 
+              backgroundColor: 'var(--mantine-color-red-6)', 
               borderRadius: '4px' 
             }} 
           />
@@ -92,7 +92,7 @@ export const PlaceSelectionGrid: React.FC = () => {
             h={16} 
             mr="xs" 
             style={{ 
-              backgroundColor: 'var(--mantine-color-red-6)', 
+              backgroundColor: 'var(--mantine-color-gray-6)', 
               borderRadius: '4px' 
             }} 
           />

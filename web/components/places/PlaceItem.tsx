@@ -19,9 +19,9 @@ export const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
       case 'AVAILABLE':
         return 'green';
       case 'BOOKED':
-        return 'gray';
-      case 'ORDERED':
         return 'red';
+      case 'ORDERED':
+        return 'gray';
       default:
         return 'gray';
     }
