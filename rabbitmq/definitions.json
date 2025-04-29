@@ -81,7 +81,7 @@
       "name": "deferred-bookings",
       "pattern": "^booking\\.defer\\.queue$",
       "definition": {
-        "message-ttl": 10000,
+        "message-ttl": 120000,
         "dead-letter-exchange": "booking.dlx",
         "dead-letter-routing-key": "expired"
       },
