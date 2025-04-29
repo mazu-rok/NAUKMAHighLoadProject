@@ -25,9 +25,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PlaceAlreadyBookedException.class)
     public ResponseEntity<Map<String, String>> handlePlaceAlreadyBookedException(PlaceAlreadyBookedException ex) {
-        log.warn("Place already booked: ", ex);
+        log.warn("Place already taken: ", ex);
         Map<String, String> error = new HashMap<>();
-        error.put("error", "This place is already booked");
+        error.put("error", "This place is already taken");
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
