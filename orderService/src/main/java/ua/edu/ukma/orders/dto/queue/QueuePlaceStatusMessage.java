@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ua.edu.ukma.orders.entity.PlaceStatus;
 
 @Data
 @NoArgsConstructor
@@ -14,9 +15,4 @@ public class QueuePlaceStatusMessage {
     private UUID placeId;
     private PlaceStatus placeStatus;
 
-    public enum PlaceStatus {
-        BOOKED,
-        ORDERED,
-        AVAILABLE
-    }
 }
