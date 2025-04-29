@@ -8,6 +8,7 @@ export const usePlaceSelection = (eventId: string) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const userId = localStorage.getItem('userId');
+  
   const fetchPlaces = useCallback(async () => {
     if (!eventId) return;
 
@@ -69,11 +70,17 @@ export const usePlaceSelection = (eventId: string) => {
             return prevLayout;
           });
 
-          setSelectedPlaces(prevSelected =>
-            prevSelected.map(selectedPlace =>
-              selectedPlace.placeId === message.placeId ? { ...selectedPlace, status: message.status } : selectedPlace
-            )
-          );
+          if (['BOOKED', 'ORDERED'].includes(message.status)) {
+            setSelectedPlaces(prevSelected => 
+              prevSelected.filter(place => place.placeId !== message.placeId)
+            );
+          } else {
+            setSelectedPlaces(prevSelected =>
+              prevSelected.map(selectedPlace =>
+                selectedPlace.placeId === message.placeId ? { ...selectedPlace, status: message.status } : selectedPlace
+              )
+            );
+          }
         }
       } catch (error) {
         console.error('Failed to parse WebSocket message:', error);
@@ -91,7 +98,7 @@ export const usePlaceSelection = (eventId: string) => {
     return () => {
       ws.close();
     };
-  }, [eventId, setLayout, setSelectedPlaces]);
+  }, [eventId]);
 
   useEffect(() => {
     fetchPlaces();
@@ -127,11 +134,10 @@ export const usePlaceSelection = (eventId: string) => {
         headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
       }
 
-      // TODO: Implement the API call to book/reserve selected places
-        const response = await fetch(`/api/buckets/${userId}`, {
+      const response = await fetch(`/api/buckets/${userId}`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ placeId: selectedPlaces[0].placeId, eventId })
+        body: JSON.stringify({ placeIds: selectedPlaces.map(place => place.placeId), eventId })
       });
       
       if (!response.ok) {
@@ -144,7 +150,7 @@ export const usePlaceSelection = (eventId: string) => {
       console.error(errorMessage);
       return Promise.reject(errorMessage);
     }
-  }, [selectedPlaces]);
+  }, [selectedPlaces, eventId, userId]);
 
   const utils: EventPlaceUtils = {
     placesInRow: (row: number) => {
