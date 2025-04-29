@@ -1,4 +1,3 @@
-// components/common/places/SelectionSummary.tsx
 import React, { useState } from 'react';
 import { usePlaceSelectionContext } from '@/components/contexts/PlaceSelectionContext';
 import { Box, Button, Divider, Group, Text, Alert } from '@mantine/core';
