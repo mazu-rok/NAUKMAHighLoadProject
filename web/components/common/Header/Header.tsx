@@ -7,7 +7,9 @@ const Header = () => {
       <Group>
         <Link href="/events">Events</Link>
 
-        <Link href="/profile">profile</Link>
+        <Link href="/profile">Profile</Link>
+
+        <Link href="/dashboard">Dashboard</Link>
 
         <Link href="/sign-in">Sign in</Link>
 
