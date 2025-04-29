@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ua.edu.ukma.orders.dto.TicketDto;
 import ua.edu.ukma.orders.dto.response.BucketResponse;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/buckets/{userId}")
 @Tag(name = "Buckets", description = "Management operations for buckets")
+@PreAuthorize("#userId == principal")
 public class BucketController {
     private final BucketService bucketService;
 
