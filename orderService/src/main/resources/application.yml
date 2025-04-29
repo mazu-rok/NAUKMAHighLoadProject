@@ -16,11 +16,15 @@ spring:
     hibernate:
       ddl-auto: none
 
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+
 # Rabbitmq queues
 booking.exchange: booking.exchange
 booking.defer.queue: booking.defer.queue
 booking.dead.queue: booking.dead.queue
-booking.ttl: 10000 # 10 seconds in ms
+booking.ttl: 120000 # 2 minutes in ms
 booking.routing-key: booked
 booking.expired.routing-key: expired
 
