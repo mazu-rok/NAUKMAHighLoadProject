@@ -1,0 +1,2 @@
+ALTER TABLE tickets ADD ordered BOOLEAN DEFAULT FALSE;
+

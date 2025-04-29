@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ua.edu.ukma.orders.dto.TicketDto;
+import ua.edu.ukma.orders.dto.TicketsDto;
 import ua.edu.ukma.orders.dto.response.BucketResponse;
 import ua.edu.ukma.orders.entity.Order;
 import ua.edu.ukma.orders.service.BucketService;
@@ -40,23 +41,23 @@ public class BucketController {
     }
 
     @Operation(
-            summary = "Add ticket to bucket",
-            description = "Add new ticket to the bucket",
+            summary = "Add tickets to bucket",
+            description = "Add new tickets to the bucket",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
                     content = @Content(
-                            schema = @Schema(implementation = TicketDto.class)
+                            schema = @Schema(implementation = TicketsDto.class)
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "204", description = "Ticket added"),
+                    @ApiResponse(responseCode = "204", description = "Tickets added"),
                     @ApiResponse(responseCode = "400", description = "Invalid input")
             }
     )
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping
-    public void addTicket(@PathVariable UUID userId, @RequestBody TicketDto request) {
-        bucketService.addTicket(userId, request);
+    public void addTickets(@PathVariable UUID userId, @RequestBody TicketsDto request) {
+        bucketService.addTickets(userId, request);
     }
 
     @Operation(

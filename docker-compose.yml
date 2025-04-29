@@ -111,7 +111,6 @@ services:
     build:
       context: orderService
     image: order-server
-    container_name: order-server
     depends_on:
       - postgres
       - rabbitmq
@@ -131,9 +130,6 @@ services:
       RABBITMQ_PASSWORD: admin
       JWT_SECRET_KEY: "LJQTjyGnd3oOiVAMssQgG62qDv6xgOdXbRPFKGzWqfU=" #base64
     tty: true
-
-    ports:
-      - "8083:8083"
     stdin_open: true
     networks:
       - server-network

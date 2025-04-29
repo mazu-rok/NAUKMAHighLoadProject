@@ -23,4 +23,6 @@ public class Ticket {
     UUID eventId;
     @Column(name = "place_id", nullable = false, updatable = false)
     private UUID placeId;
+    @Column(name = "ordered")
+    private Boolean ordered;
 }
