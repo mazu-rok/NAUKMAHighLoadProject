@@ -151,7 +151,7 @@ const Bucket = ({ opened, close }: Props) => {
           ))}
         </Group>
 
-        <Button color="blue" fullWidth mt="md" radius="md" onClick={onBuy}>
+        <Button color="blue" fullWidth mt="md" radius="md" onClick={onBuy} disabled={places.length === 0}>
           Купити Квитки
         </Button>
       </Modal>
