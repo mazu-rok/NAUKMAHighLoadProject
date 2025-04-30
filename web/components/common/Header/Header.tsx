@@ -14,7 +14,7 @@ const Header = () => {
 
         <Link href="/profile">Profile</Link>
 
-        <Link href="/dashboard">Dashboard</Link>
+        <Link href="/dashboard">Create event</Link>
 
         <Link href="/sign-in">Sign in</Link>
 

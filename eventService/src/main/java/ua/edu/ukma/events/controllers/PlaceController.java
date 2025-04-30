@@ -8,9 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.web.bind.annotation.*;
 
 import ua.edu.ukma.events.dto.responses.PlaceResponse;
@@ -21,7 +18,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/v1/events/places")
+@RequestMapping("/api/v1/places")
 @Tag(name = "Places", description = "CRUD operations for places")
 public class PlaceController {
 

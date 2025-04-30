@@ -54,6 +54,10 @@ spring:
           predicates:
             - Path=/api/v1/events/**
           uri: lb://events-service
+        - id: places
+          predicates:
+            - Path=/api/v1/places/**
+          uri: lb://events-service
         - id: orders
           predicates:
             - Path=/api/v1/buckets/**

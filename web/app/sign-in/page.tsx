@@ -23,8 +23,8 @@ export default function SignInPage() {
         },
 
         validate: {
-            username: (value: string) => (value.length > 4 ? null : 'Неправильний username, довжина має бути більше 4 символів'),
-            password: (value: string) => (value.length > 7 ? null : 'Неправильний пароль, довжина має бути більше 7 символів'),
+            username: (value: string) => (value.length > 4 ? null : 'Incorrect username, the length must be more than 4 characters'),
+            password: (value: string) => (value.length > 7 ? null : 'Incorrect password, the length must be more than 7 characters'),
         },
     });
 
@@ -64,14 +64,14 @@ export default function SignInPage() {
                         <Stack>
                             <Center>
                                 <Text size="xl" fw={500}>
-                                    ВХІД ДО КАБІНЕТУ
+                                    LOGIN TO YOUR ACCOUNT
                                 </Text>
                             </Center>
 
                             <TextInput
                                 withAsterisk
-                                label="Ваш username"
-                                placeholder="username"
+                                label="Username"
+                                placeholder="Username"
                                 {...form.getInputProps('username')}
                                 mb='md'
                                 required
@@ -80,16 +80,16 @@ export default function SignInPage() {
                             <div>
                                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                                     <Text size="sm" fw={500}>
-                                        Ваш пароль
+                                        Password
                                     </Text>
                                     <Anchor href="#" size="xs">
-                                        Забули пароль?
+                                        Forgot your password?
                                     </Anchor>
                                 </div>
 
                                 <PasswordInput
                                     withAsterisk
-                                    placeholder="Ваш пароль"
+                                    placeholder="Password"
                                     key={form.key('password')}
                                     {...form.getInputProps('password')}
                                     required
@@ -97,18 +97,18 @@ export default function SignInPage() {
                             </div>
 
                             <Checkbox
-                                label="Запам’ятати мене"
+                                label="Remember me"
                             />
 
                             <Button type="submit" fullWidth color="dark" size="md" radius="sm">
-                                УВІЙТИ
+                                Sign in
                             </Button>
 
                             <Center>
                                 <Text size="sm" color="dimmed">
-                                    Не маєте акаунта?{" "}
+                                    Don&#39t have an account?{" "}
                                     <Anchor onClick={() => router.push('/sign-up')}>
-                                        ЗАРЕЄСТРУЙТЕСЯ
+                                        SIGN UP
                                     </Anchor>
                                 </Text>
                             </Center>

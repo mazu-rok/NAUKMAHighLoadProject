@@ -20,6 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.log(errorText);
 
       let errorMessage = `Failed to create event: ${response.status}`;
       try {

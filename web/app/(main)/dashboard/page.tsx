@@ -3,7 +3,7 @@
 
 import { EventStatus } from "@/components/types/event";
 import { Button, NumberInput, Paper, Select, Stack, TextInput, Title } from "@mantine/core";
-import { DateInput } from "@mantine/dates";
+import { DateTimePicker } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import {useRouter} from 'next/navigation'
 
@@ -38,10 +38,15 @@ export default function DashboardPage() {
         body: JSON.stringify({ ...values, endTime, startTime }),
         headers
       });
-      router.push('/events');
-      console.log("Event created:", await res.json());
+      if (res.ok) {
+        console.log("Event created:", await res.json());
+        router.push('/events');
+      } else {
+        console.error("Failed to create event:", await res.json());
+      }
+
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Event create error:', error);
     }
   }
 
@@ -56,7 +61,7 @@ export default function DashboardPage() {
   }}>
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack w={400}>
-        <Title order={1}>Новий івент</Title>
+        <Title order={1}>Create Event</Title>
 
         <TextInput
             label="Title"
@@ -83,13 +88,13 @@ export default function DashboardPage() {
             key={form.key("status")}
             {...form.getInputProps("status")}
         />
-        <DateInput
+        <DateTimePicker
             label="Start Time"
             placeholder="Start Time"
             key={form.key("startTime")}
             {...form.getInputProps("startTime")}
         />
-        <DateInput
+        <DateTimePicker
             label="End Time"
             placeholder="End Time"
             key={form.key("endTime")}

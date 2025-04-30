@@ -5,6 +5,7 @@ export interface OrderedTicket {
 }
 
 export interface Order {
+  id: string;
   userId: string;
   eventId: string;
   eventName: string;

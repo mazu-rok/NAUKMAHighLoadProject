@@ -71,8 +71,6 @@ services:
       MONGODB_PORT: 27017
       MONGO_DB: highLoadDb
     tty: true
-    ports:
-      - "8080:8080"
     stdin_open: true
     networks:
       - server-network
