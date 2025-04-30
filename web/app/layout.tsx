@@ -10,8 +10,8 @@ import { createTheme, MantineProvider } from '@mantine/core';
 const theme = createTheme({});
 
 export const metadata: Metadata = {
-  title: "КвиточОК",
-  description: "Купуй квитки на найкращі події в Україні",
+  title: "TicKet",
+  description: "Buy tickets to the best events in the world",
 }; 
 
 export default function RootLayout({

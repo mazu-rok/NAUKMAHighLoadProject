@@ -23,9 +23,9 @@ export default function SignUpPage() {
         },
 
         validate: {
-            email: (value: string) => (/^\S+@\S+$/.test(value) ? null : 'Неправильний email'),
-            username: (value: string) => (value.length > 4 ? null : 'Неправильний username, довжина має бути більше 4 символів'),
-            password: (value: string) => (value.length > 7 ? null : 'Неправильний пароль, довжина має бути більше 7 символів'),
+            email: (value: string) => (/^\S+@\S+$/.test(value) ? null : 'Incorrect email'),
+            username: (value: string) => (value.length > 4 ? null : 'Incorrect username, the length must be more than 4 characters'),
+            password: (value: string) => (value.length > 7 ? null : 'Incorrect password, the length must be more than 7 characters'),
         },
     });
 
@@ -64,22 +64,22 @@ export default function SignUpPage() {
                 <Stack>
                     <Center>
                         <Text size="xl" fw={500}>
-                            РЕЄСТРАЦІЯ
+                            REGISTRATION
                         </Text>
                     </Center>
 
                     <TextInput
                         withAsterisk
-                        label="Ваш username"
-                        placeholder="username"
+                        label="Username"
+                        placeholder="Username"
                         {...form.getInputProps('username')}
                         mb='md'
                         required
                     />
                     <TextInput
                         withAsterisk
-                        label="Ваш email"
-                        placeholder="email"
+                        label="Email"
+                        placeholder="Email"
                         {...form.getInputProps('email')}
                         mb='md'
                         required
@@ -87,22 +87,22 @@ export default function SignUpPage() {
 
                     <PasswordInput
                         withAsterisk
-                        label="Ваш пароль"
-                        placeholder="Ваш пароль"
+                        label="Password"
+                        placeholder="Password"
                         key={form.key('password')}
                         {...form.getInputProps('password')}
                         required
                     />
 
                     <Button type="submit" fullWidth color="dark" size="md" radius="sm">
-                        ЗАРЕЄСТРУВАТИСЬ
+                        SIGN UP
                     </Button>
 
                     <Center>
                         <Text size="sm" color="dimmed">
-                            Вже маєте аккаунт?{" "}
+                            Already have an account?{" "}
                             <Anchor onClick={() => router.push('/sign-in')}>
-                                ВХІД ДО КАБІНЕТУ
+                                SIGN IN
                             </Anchor>
                         </Text>
                     </Center>

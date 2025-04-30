@@ -22,7 +22,7 @@ export default async function handler(
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/events/places?eventId=${eventId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/places?eventId=${eventId}`,
       {
         method: "GET",
         headers,

@@ -138,7 +138,7 @@ const Bucket = ({ opened, close }: Props) => {
     }
   };
   return (
-      <Modal opened={opened} onClose={close} title={"Кошик " + places.length} centered size="80%">
+      <Modal opened={opened} onClose={close} title={"Bucket " + places.length} centered size="80%">
         <Group justify="space-evenly">
           {places.map(({ placeId, eventId, ...place }) => (
               <Place
@@ -152,7 +152,7 @@ const Bucket = ({ opened, close }: Props) => {
         </Group>
 
         <Button color="blue" fullWidth mt="md" radius="md" onClick={onBuy} disabled={places.length === 0}>
-          Купити Квитки
+            Buy tickets
         </Button>
       </Modal>
   );

@@ -21,7 +21,7 @@ export default async function handler(
     }
 
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/events/places/${id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/places/${id}`,
         {
           method: "GET",
           headers,
