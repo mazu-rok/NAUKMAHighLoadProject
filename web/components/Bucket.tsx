@@ -1,3 +1,4 @@
+import { WS_URL } from "@/components/config/config";
 import { formatDate } from "@/components/helpers/formatDate";
 import { EventResponse } from "@/components/types/event";
 import { Badge, Box, Button, Card, Group, Modal, Stack, Text, Title } from "@mantine/core";
@@ -82,9 +83,15 @@ interface Props {
 
 const Bucket = ({ opened, close }: Props) => {
   const [places, setPlaces] = useState<PlaceItem[]>([]);
+  const [wsList, setWsList] = useState<WebSocket[]>([]);
 
   useEffect(() => {
-    if (!opened) return;
+    if (!opened) {
+      console.log("close sockets");
+      wsList.forEach((ws) => ws.close());
+      setWsList([]);
+      return;
+    }
     const getOrders = async () => {
       const headers: Record<string, string> = {};
       if (localStorage.getItem("accessToken") != null) {
@@ -123,6 +130,37 @@ const Bucket = ({ opened, close }: Props) => {
     getOrders();
   }, [opened]);
 
+  const handleConnection = (eventId: string, ws: WebSocket) => {
+    ws.onmessage = (event) => {
+      try {
+        // {"status":"AVAILABLE","placeId":"efbd7da1-cd70-48f7-bf70-de94a78c694c"}
+        const message = JSON.parse(event.data);
+        if (message?.placeId && message?.status === "AVAILABLE") {
+          setPlaces((places) => places.filter(place => !(place.placeId === message?.placeId && place.eventId === eventId)));
+        }
+      } catch (error) {
+        console.error('Failed to parse WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+  }
+
+  useEffect(() => {
+    if (places.length && !wsList.length) {
+      const uniqueEventIds = [...new Set(places.map(item => item.eventId))];
+      const wsList:WebSocket[] = [];
+      uniqueEventIds.forEach((eventId) => {
+        const ws = new WebSocket(`${WS_URL}/ws/v1/places/events?eventId=${eventId}`);
+        wsList.push(ws);
+        handleConnection(eventId, ws)
+      })
+      setWsList(wsList)
+    }
+  }, [places]);
+
   const onBuy = async () => {
     try {
       const res = await fetch(`/api/buckets/${localStorage.getItem("userId")}/orders`, {
@@ -138,7 +176,7 @@ const Bucket = ({ opened, close }: Props) => {
     }
   };
   return (
-      <Modal opened={opened} onClose={close} title={"Bucket " + places.length} centered size="80%">
+      <Modal opened={opened} onClose={close} title={"Bucket - " + places.length + " places"} centered size="80%">
         <Group justify="space-evenly">
           {places.map(({ placeId, eventId, ...place }) => (
               <Place
