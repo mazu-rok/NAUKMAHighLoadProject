@@ -145,13 +145,13 @@ const Bucket = ({ opened, close }: Props) => {
                   key={placeId}
                   place={{ placeId, eventId, ...place }}
                   removePlace={({placeId, eventId}) => {
-                    setPlaces(places.filter((place) => place.placeId !== placeId && eventId === place.eventId));
+                    setPlaces(places.filter(place => !(place.placeId === placeId && place.eventId === eventId)));
                   }}
               />
           ))}
         </Group>
 
-        <Button color="blue" fullWidth mt="md" radius="md" onClick={onBuy}>
+        <Button color="blue" fullWidth mt="md" radius="md" onClick={onBuy} disabled={places.length === 0}>
           Купити Квитки
         </Button>
       </Modal>
