@@ -1,6 +1,6 @@
 // pages/api/buckets/[userId].ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { BucketResponse, BucketTicketDto, BucketTicketsDto } from "@/components/types/bucket";
+import { BucketResponse, BucketTicketsDto } from "@/components/types/bucket";
 
 export default async function handler(
   req: NextApiRequest,

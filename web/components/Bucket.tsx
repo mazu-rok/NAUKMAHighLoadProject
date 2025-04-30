@@ -145,7 +145,7 @@ const Bucket = ({ opened, close }: Props) => {
                   key={placeId}
                   place={{ placeId, eventId, ...place }}
                   removePlace={({placeId, eventId}) => {
-                    setPlaces(places.filter((place) => place.placeId !== placeId && eventId === place.eventId));
+                    setPlaces(places.filter(place => !(place.placeId === placeId && place.eventId === eventId)));
                   }}
               />
           ))}
