@@ -6,7 +6,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<BucketResponse | { error?: string; status?: number }>
 ) {
-  const { userId } = req.query;
+  const { userId, placeId, eventId } = req.query;
   const accessToken = req.headers.authorization?.split(" ")[1];
 
   if (!userId || typeof userId !== "string") {
@@ -54,7 +54,7 @@ export default async function handler(
         const deleteResponse = await fetch(apiUrl, {
           method: "DELETE",
           headers,
-          body: JSON.stringify(req.body as BucketTicketDto),
+          body: JSON.stringify({placeId, eventId}),
         });
         if (!deleteResponse.ok) {
           const error = await deleteResponse.json();
