@@ -1,6 +1,6 @@
 // pages/api/buckets/[userId].ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { BucketResponse, BucketTicketDto } from "@/components/types/bucket";
+import { BucketResponse, BucketTicketDto, BucketTicketsDto } from "@/components/types/bucket";
 
 export default async function handler(
   req: NextApiRequest,
@@ -42,13 +42,13 @@ export default async function handler(
         const postResponse = await fetch(apiUrl, {
           method: "POST",
           headers,
-          body: JSON.stringify(req.body as BucketTicketDto),
+          body: JSON.stringify(req.body as BucketTicketsDto),
         });
         if (!postResponse.ok) {
           const error = await postResponse.json();
           return res.status(postResponse.status).json({ error: error.message, status: postResponse.status });
         }
-        return res.status(204).end();
+        return res.status(200).end();
 
       case "DELETE": // For removing a ticket
         const deleteResponse = await fetch(apiUrl, {
